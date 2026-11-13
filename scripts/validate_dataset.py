@@ -2,6 +2,7 @@
 """Validate PersianDataset JSONL records and cross-file corpus integrity (stdlib only)."""
 from __future__ import annotations
 import argparse, hashlib, json, re, sys
+from datetime import date
 from collections import Counter
 from pathlib import Path
 
@@ -10,7 +11,8 @@ SPLITS = {"train", "validation", "test", "challenge"}
 LANGUAGES = {"fa", "fa-en", "multilingual"}
 REGISTERS = {"colloquial", "neutral", "formal", "mixed"}
 TOP = {"sample_id", "messages", "domain", "split", "language", "register", "subskills", "quality", "metadata"}
-QUALITY = {"intent_fidelity", "context_use", "persian_fluency", "accuracy", "instruction_adherence", "review_status"}
+QUALITY = {"intent_fidelity", "context_use", "persian_fluency", "accuracy", "instruction_adherence", "tone_appropriateness", "non_redundancy", "review_status", "reviewer", "reviewed_at"}
+QUALITY_SCORES = {"intent_fidelity", "context_use", "persian_fluency", "accuracy", "instruction_adherence", "tone_appropriateness", "non_redundancy"}
 PERSIAN = re.compile(r"[\u0600-\u06FF]")
 
 def nonempty(value):
@@ -73,8 +75,18 @@ def validate_record(row, path, line):
             if key == "review_status":
                 if value not in {"unreviewed", "machine_checked", "human_reviewed", "rejected"}:
                     errors.append(f"{where}: invalid quality.review_status")
-            elif not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= 5:
-                errors.append(f"{where}: quality.{key} must be an integer from 1 to 5")
+            elif key in QUALITY_SCORES:
+                if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= 5:
+                    errors.append(f"{where}: quality.{key} must be an integer from 1 to 5")
+            elif key == "reviewer":
+                if not nonempty(value): errors.append(f"{where}: quality.reviewer must be a non-empty string")
+            elif key == "reviewed_at":
+                try: date.fromisoformat(value)
+                except (TypeError, ValueError): errors.append(f"{where}: quality.reviewed_at must be an ISO date (YYYY-MM-DD)")
+        if isinstance(quality, dict) and quality.get("review_status") in {"human_reviewed", "rejected"}:
+            if not nonempty(quality.get("reviewer")): errors.append(f"{where}: human review status requires quality.reviewer")
+            try: date.fromisoformat(quality.get("reviewed_at", ""))
+            except (TypeError, ValueError): errors.append(f"{where}: human review status requires quality.reviewed_at as YYYY-MM-DD")
     return errors, warnings
 
 def validate_files(paths):
