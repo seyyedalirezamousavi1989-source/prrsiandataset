@@ -55,8 +55,8 @@ class ValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             line = json.dumps(record(), ensure_ascii=False)
             a, b = Path(tmp) / "a.jsonl", Path(tmp) / "b.jsonl"
-            a.write_text(line + "\\n", encoding="utf-8")
-            b.write_text(line + "\\n", encoding="utf-8")
+            a.write_text(line + "\n", encoding="utf-8")
+            b.write_text(line + "\n", encoding="utf-8")
             self.assertTrue(any("duplicate sample_id" in e for e in validate_files([a, b])["errors"]))
 
     def test_missing_supersedes_target(self):
@@ -64,7 +64,7 @@ class ValidatorTests(unittest.TestCase):
             row = record()
             row["metadata"]["supersedes_sample_id"] = "absent"
             p = Path(tmp) / "a.jsonl"
-            p.write_text(json.dumps(row, ensure_ascii=False) + "\\n", encoding="utf-8")
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
             self.assertTrue(any("not found" in e for e in validate_files([p])["errors"]))
 
     def test_human_review_requires_reviewer_and_date(self):
