@@ -1,11 +1,11 @@
 import json
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from pathlib import Path
 
 from scripts.review_assistant_turns_ollama import (
-    ReviewError, parse_model_response, load_existing, atomic_json, review_corpus,
+    ReviewError, parse_model_response, load_existing, atomic_json, review_corpus, ollama_chat,
 )
 
 
@@ -92,6 +92,23 @@ class OllamaTurnReviewTests(unittest.TestCase):
     def test_invalid_json_includes_response_preview(self):
         with self.assertRaisesRegex(ReviewError, "response preview"):
             parse_model_response("not-json", {1}, "fa-bad-json", 2)
+
+    def test_ollama_empty_response_reports_generation_metadata_and_output_limit(self):
+        body = {
+            "model": "qwen3.5:9b",
+            "done_reason": "length",
+            "prompt_eval_count": 812,
+            "eval_count": 0,
+            "message": {"role": "assistant", "content": ""}
+        }
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(body).encode("utf-8")
+        with patch("scripts.review_assistant_turns_ollama.urllib.request.urlopen", return_value=response) as urlopen:
+            with self.assertRaisesRegex(ReviewError, "done_reason='length'.*eval_count=0"):
+                ollama_chat("http://localhost:11434", "qwen3.5:9b", {"sample_id": "fa-x"}, 10)
+        request = urlopen.call_args.args[0]
+        payload = json.loads(request.data.decode("utf-8"))
+        self.assertEqual(payload["options"]["num_predict"], 2048)
 
     def test_manifest_tracks_partial_run_and_resume_completion(self):
         source = self.root / "source.jsonl"
