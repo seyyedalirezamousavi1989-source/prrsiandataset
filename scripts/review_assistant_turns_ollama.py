@@ -6,7 +6,7 @@ from pathlib import Path
 
 LABELS = {"positive_target", "negative_or_demonstration_only", "needs_revision"}
 ANNOTATION_VERSION = "assistant_turn_review_v1"
-PROMPT_VERSION = "persian_turn_reviewer_v2"
+PROMPT_VERSION = "persian_turn_reviewer_v3"
 
 class ReviewError(ValueError):
     pass
@@ -73,7 +73,10 @@ def parse_model_response(content, expected, sid, message_count):
     raw_indices=[]
     for item in items:
         if not isinstance(item,dict) or set(item)!=required:
-            raise ReviewError(f"{sid}: invalid turn annotation fields")
+            actual_keys=sorted(item.keys()) if isinstance(item,dict) else type(item).__name__
+            missing=sorted(required-set(item)) if isinstance(item,dict) else sorted(required)
+            extra=sorted(set(item)-required) if isinstance(item,dict) else []
+            raise ReviewError(f"{sid}: invalid turn annotation fields; expected={sorted(required)}, actual={actual_keys}, missing={missing}, extra={extra}")
         idx=item["message_index"]
         if not isinstance(idx,int) or isinstance(idx,bool):
             raise ReviewError(f"{sid}: invalid/duplicate turn index {idx!r}")
@@ -114,7 +117,30 @@ def parse_model_response(content, expected, sid, message_count):
     return [found[i] for i in sorted(found)]
 
 def ollama_chat(base_url,model,messages,timeout,num_ctx=None,num_predict=2048):
-    payload={"model":model,"stream":False,"think":False,"format":"json",
+    response_schema={
+        "type":"object",
+        "properties":{
+            "assistant_turns":{
+                "type":"array",
+                "items":{
+                    "type":"object",
+                    "properties":{
+                        "message_index":{"type":"integer"},
+                        "label":{"type":"string","enum":sorted(LABELS)},
+                        "rationale":{"type":"string"},
+                        "confidence":{"type":"number","minimum":0,"maximum":1},
+                        "evidence_message_indices":{"type":"array","items":{"type":"integer"}},
+                        "issues":{"type":"array","items":{"type":"string"}}
+                    },
+                    "required":["message_index","label","rationale","confidence","evidence_message_indices","issues"],
+                    "additionalProperties":False
+                }
+            }
+        },
+        "required":["assistant_turns"],
+        "additionalProperties":False
+    }
+    payload={"model":model,"stream":False,"think":False,"format":response_schema,
         "messages":[{"role":"system","content":SYSTEM_PROMPT},{"role":"user","content":json.dumps(messages,ensure_ascii=False)}],
         "options":{"temperature":0.0,"num_predict":num_predict}}
     if num_ctx: payload["options"]["num_ctx"]=num_ctx
