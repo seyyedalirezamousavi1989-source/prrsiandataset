@@ -62,7 +62,7 @@ def parse_model_response(content, expected, sid, message_count):
     try:
         data = json.loads(content)
     except json.JSONDecodeError as exc:
-        preview = content[:240].replace("\\n", " ")
+        preview = content[:240].replace("\n", " ")
         raise ReviewError(f"{sid}: model returned invalid JSON: {exc}; response preview={preview!r}") from exc
     if not isinstance(data,dict) or set(data)!={"assistant_turns"} or not isinstance(data["assistant_turns"],list):
         raise ReviewError(f"{sid}: response must contain only assistant_turns array")
@@ -123,7 +123,7 @@ def ollama_chat(base_url,model,messages,timeout,num_ctx=None,num_predict=2048):
 
 def atomic_json(path, payload):
     temp=path.with_suffix(path.suffix+".tmp")
-    temp.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+    temp.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     os.replace(temp,path)
 
 def update_progress_manifest(path, expected_manifest, annotated_ids, active_ids):
@@ -214,7 +214,7 @@ def review_corpus(paths,output,model,base_url,timeout,num_ctx=None,resume=False,
                     time.sleep(1.5*(attempt+1))
             record_hash=sha(json.dumps(row,ensure_ascii=False,sort_keys=True).encode())
             annotation={"sample_id":sid,"review_status":"ai_provisional","reviewer_type":"ai","review_model":actual,"annotation_version":ANNOTATION_VERSION,"prompt_version":PROMPT_VERSION,"source_record_sha256":record_hash,"source_file":str(path),"source_line":line_no,"assistant_turns":turns}
-            stream.write(json.dumps(annotation,ensure_ascii=False)+"\\n")
+            stream.write(json.dumps(annotation,ensure_ascii=False)+"\n")
             stream.flush()
             os.fsync(stream.fileno())
             annotated_ids.add(sid)
