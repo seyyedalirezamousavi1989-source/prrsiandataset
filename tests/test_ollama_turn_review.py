@@ -18,7 +18,7 @@ class OllamaTurnReviewTests(unittest.TestCase):
         self.expected = {
             "format": "ollama_assistant_turn_review_jsonl",
             "annotation_version": "assistant_turn_review_v1",
-            "prompt_version": "persian_turn_reviewer_v1",
+            "prompt_version": "persian_turn_reviewer_v2",
             "requested_model": "qwen3.5:9b",
             "base_url": "http://127.0.0.1:11434",
             "prompt_sha256": "abc",
@@ -42,6 +42,21 @@ class OllamaTurnReviewTests(unittest.TestCase):
         payload = {"assistant_turns": [self.turn(3), self.turn(1, "negative_or_demonstration_only")]}
         result = parse_model_response(json.dumps(payload, ensure_ascii=False), {1, 3}, "fa-test", 4)
         self.assertEqual([x["message_index"] for x in result], [1, 3])
+
+    def test_single_assistant_ordinal_zero_is_mapped_to_original_message_index(self):
+        payload = {"assistant_turns": [self.turn(0)]}
+        result = parse_model_response(json.dumps(payload, ensure_ascii=False), {1}, "fa-exc-0001", 2)
+        self.assertEqual([x["message_index"] for x in result], [1])
+
+    def test_multiple_assistant_ordinals_are_mapped_to_original_indices(self):
+        payload = {"assistant_turns": [self.turn(0), self.turn(1)]}
+        result = parse_model_response(json.dumps(payload, ensure_ascii=False), {1, 3}, "fa-multi", 4)
+        self.assertEqual([x["message_index"] for x in result], [1, 3])
+
+    def test_exact_original_indices_take_precedence_over_ordinal_interpretation(self):
+        payload = {"assistant_turns": [self.turn(0), self.turn(1)]}
+        result = parse_model_response(json.dumps(payload, ensure_ascii=False), {0, 1}, "fa-exact", 2)
+        self.assertEqual([x["message_index"] for x in result], [0, 1])
 
     def test_missing_assistant_turn_is_rejected(self):
         payload = {"assistant_turns": [self.turn(1)]}
