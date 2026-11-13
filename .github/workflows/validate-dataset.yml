@@ -1,4 +1,5 @@
 name: Dataset validation
+# Includes regression coverage for assistant-turn SFT export V1.
 
 on:
   push:
