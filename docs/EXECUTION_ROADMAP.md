@@ -1,6 +1,6 @@
 # PersianDataset Execution Roadmap
 
-**Status:** Phases 1–2 completed; advanced pilot batches v2–v7 staged. Human linguistic review, full Phase 4 validation, and final deduplication remain pending.
+**Status:** Phases 1–2 completed; advanced pilot batches v2–v7 staged. Phase 3 human review remains pending. Phase 4 validator implementation and regression tests are committed but not yet runtime-verified.
 **Target:** High-quality Persian conversational SFT data for Qwen3.5-4B with Unsloth.
 **Owner context:** Creator/developer: Alireza Mousavi; assistant project: LocalChat Agent; associated research label: AURORA QUANT.
 
@@ -43,11 +43,11 @@ This file is the durable source of truth for project order and continuation. Upd
 - Exit gate: review status and notes reflect work actually performed.
 
 ### Phase 4 — Automated data quality pipeline
-- Validate JSONL against schemas/conversation.schema.json.
-- Check unique IDs, exact duplicates, near duplicates, empty/abnormal turns, invalid role sequences, language metadata, and provenance.
-- Report coverage by domain, subskill, register, turn count, and source.
-- Add regression tests for the validator and produce machine-readable reports.
-- Exit gate: validation is reproducible and fails loudly on bad data.
+- Implemented: schema-aligned record validation, message-order checks, corpus-wide duplicate ID and exact-payload checks, supersedes-reference checks, coverage summary, JSON report output.
+- Added regression tests: `tests/test_validate_dataset.py`.
+- Pending: execute regression tests and run the validator over every staging JSONL file together; fix all failures and inspect legacy warnings.
+- Pending: add semantic near-duplicate review and CI automation after runtime behavior is confirmed.
+- Exit gate: tests pass and full-corpus validation is reproducible with reviewed findings.
 
 ### Phase 5 — Leakage-resistant dataset splits
 - Group by conversation family, source, prompt template, and semantic near-duplicate cluster before splitting.
@@ -89,18 +89,14 @@ This file is the durable source of truth for project order and continuation. Upd
 - Exit gate: preference data has clear labels, provenance, and evidence of usefulness.
 
 ## Current progress snapshot
-- Phase 1 completed: taxonomy and authoring rules are documented in docs/ADVANCED_DATA_AUTHORING_GUIDE.md.
-- Phase 2: data/staging/advanced_pilot_v2.jsonl and advanced_pilot_v3.jsonl add 30 original-curated advanced records in total. Both remain staging data; v3 records are explicitly marked unreviewed and are not final-split data.
-- Phase 2 coverage audit: docs/PHASE2_COVERAGE_AUDIT.md inventories the four pre-v3 staging files (59 records, valid JSON parsing, no duplicate IDs) and documents underrepresented behavior families addressed by v3.\n- Preliminary AI-assisted editorial pass: docs/PHASE3_AI_ASSISTED_REVIEW_V3.md inspects all 15 v3 records and flags three material revision candidates (fa-adv-0018, fa-adv-0023, fa-adv-0026) plus two optional refinements. This is not human review; all v3 records remain unreviewed.\n- Phase 3 revision patch: data/staging/advanced_pilot_v4_patch.jsonl adds five revised records (fa-adv-0031–0035), each linked to its superseded v3 sample through metadata.supersedes_sample_id. The original v3 snapshot is unchanged; all v4 patch records remain unreviewed.
-- Phase 2 expansion batch v5: data/staging/advanced_pilot_v5.jsonl adds 15 new original-curated records (fa-adv-0036–0050) covering context and constraint updates, focused clarification, exact-format instruction following, correction recovery, uncertainty about live data, emotional support, colloquial typo tolerance, planning, beginner explanations, polite boundaries, arithmetic, selective context retention, natural translation, and truthful file-access boundaries. All v5 records remain unreviewed; the file was fetched back and checked for JSON parsing, unique IDs, complete user-to-assistant conversations, required domain/subskill metadata, and honest provenance.
-- Phase 2 expansion batch v6: data/staging/advanced_pilot_v6.jsonl adds 10 original-curated records (fa-adv-0051–0060), emphasizing longer context retention, iterative correction, uncertain troubleshooting, pragmatic interpretation, schedule revision, audience adaptation, code-switching, trade-off explanation, exact-step instruction following, and honest handling of missing context. All v6 records remain unreviewed; fetched-back structural checks confirm JSON parsing, unique IDs, valid message boundaries/roles, and original-curated provenance.
-- Phase 2 expansion batch v7: data/staging/advanced_pilot_v7.jsonl adds eight original-curated records (fa-adv-0061–0068), targeting formal email writing, topic switching and deferred-context return, everyday small talk, respectful disagreement, exact-count formatting, plain-language adaptation, focused clarification, and budget/priority revision. All v7 records remain unreviewed; fetched-back structural checks passed.
-- Updated coverage audit: docs/PHASE2_COVERAGE_AUDIT_V2.md inventories 112 staging records across nine files (including the identity set and five revision records in v4); it documents the register imbalance, legacy missing review metadata, supersedes handling, and next coverage priorities. The 112 count is not a final unique-example count.
-- Repository specification, schema, identity profile, validator draft, and initial staging pilots were previously added.
-- Previously reported staging counts: pilot_v0 15 records, pilot_v1 21 records, identity_v1 8 records. Recount from repository contents before treating these totals as authoritative.
-- Existing pilot records were marked train for staging convenience; these are not final training splits.
-- No model training has been performed as part of this PersianDataset workflow.
-- The current schema represents text-only system, user, and assistant messages; it does not define tool-call structures. Do not add tool-call traces without a deliberate schema version change.
+- Phase 1 completed: taxonomy and authoring rules are documented in `docs/ADVANCED_DATA_AUTHORING_GUIDE.md`.
+- Phase 2: pilot batches v0–v7 exist as staging inputs; the current inventory previously counted 112 records across nine files, including eight identity records and five revision records. Recount from the repository before using this as an authoritative current total.
+- Coverage audit V2 documents register imbalance, legacy missing review metadata, supersedes handling and remaining quality gates.
+- Phase 3 human review is still pending. AI-assisted editorial checks are not human review.
+- Phase 4 validator and regression-test files are committed, but tests and full-corpus execution have not yet been run. See `docs/PHASE4_VALIDATOR_IMPLEMENTATION.md`.
+- No model training has been performed in this workflow.
+- Keep identity and specialist XAUUSD data separate from the general Persian dataset.
+- Existing `train` values are staging labels, not final leakage-resistant splits.
 
 ## Exact next action
-Continue Phase 3 with human review of the five v4 patch records against their superseded v3 originals, then review the remaining v3 records and earlier pilots. Confirm whether the proposed revisions are genuinely more natural and correct; keep all records unreviewed until a human has actually reviewed them. Then proceed to Phase 4 automated validation and deduplication, ensuring superseded pairs are treated as revisions rather than accidental duplicate training examples. Do not jump to training.
+Run `python -m unittest discover -s tests -v`, then run the validator once over all staging JSONL files together with `--json-report`. Inspect and fix runtime/test failures before semantic deduplication or final splitting. Do not start training.
