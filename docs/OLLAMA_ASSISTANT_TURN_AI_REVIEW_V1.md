@@ -29,6 +29,7 @@ Optional controls:
 - `--base-url`: Ollama endpoint (default `http://127.0.0.1:11434`)
 - `--timeout`: request timeout in seconds (default 300)
 - `--num-ctx`: optional Ollama context size
+- `--num-predict`: maximum output tokens per reviewed conversation (default `2048`)
 - `--pause`: seconds between records
 - `--limit`: number of new records in this invocation
 
@@ -38,8 +39,10 @@ Optional controls:
 - Source record hashes are embedded in each annotation.
 - A sidecar manifest binds resume to the exact source-file hashes, model tag, endpoint, prompt version, and annotation version. Resume is rejected if any of these differ.
 - Output is append-only; existing output is never overwritten.
-- Each successful record is flushed to disk before continuing.
-- The manifest's `complete` field means only that every active source record was processed, not that the judgments are correct.
+- Each successful JSONL annotation is flushed and `fsync`'d before the manifest is atomically updated. The manifest's `completed_records` count is updated after every saved record.
+- On `--resume`, the script validates the saved annotations against source hashes and recomputes progress from the append-only JSONL. This repairs stale progress counters produced by older versions; it does not invent or alter annotations.
+- The manifest's `complete` field becomes true only when every active source record has a validated annotation. It means only that processing finished, not that the judgments are correct.
+- Empty or malformed Ollama responses are retried up to three times. Final errors include the sample ID and available Ollama response metadata (such as `done_reason`, token counts, and message keys). The output-token limit can be raised with `--num-predict` when a conversation has many assistant turns.
 - Conversation contents are treated as untrusted data. Prompt-injection resistance is not guaranteed.
 - Confidence is self-reported by the model and is not calibrated.
 
