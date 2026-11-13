@@ -113,5 +113,8 @@ This file is the durable source of truth for project order and continuation. Upd
 - This expansion stage precedes safe preprocessing. It does not authorize final splits or model training.
 - Next: validate the new batch, inspect coverage and near-duplicates, then add further batches based on measured gaps. Human linguistic review remains mandatory.
 
+- Added second expansion batch `data/staging/persian_language_excellence_v2.jsonl` with 31 new records (IDs `fa-exc-0025`–`fa-exc-0055`); all remain explicitly `unreviewed`.
+- Combined Persian Language Excellence expansion: 55 new candidate records across v1 and v2. These remain separate from identity and Forex datasets and are not training-ready.
+
 ## Exact next action
 Complete the six candidate-pair decisions in `docs/NEAR_DUPLICATE_ADJUDICATION_PACKET_V1.md` with a Persian-fluent human reviewer, then record outcomes in `docs/HUMAN_REVIEW_REGISTER_V1.md`. Continue the full general-Persian review afterward; review identity records separately. Do not change review metadata without actual human review evidence. Do not create final train/validation/test/challenge splits or start training until review and dedup decisions are recorded.
