@@ -67,3 +67,15 @@ The dataset-validation workflow now generates `reports/semantic_family_candidate
 ## Current status
 
 No semantic-family IDs or final splits have been written into staging records. Historical staging files remain unchanged. Human review, family adjudication, and split assignment are still required before an Unsloth training export can pass.
+
+
+## First CI-generated candidate inventory
+
+Workflow run `43476706218` completed successfully:
+- 25 regression tests passed.
+- 359 active general-language records were scanned.
+- The separate identity track was excluded.
+- 63 lexical-overlap pairs were emitted for human review.
+- No family IDs or splits were assigned.
+
+The candidate report is available as the `staging-validation-and-semantic-review` artifact in [this workflow run](https://github.com/seyyedalirezamousavi1989-source/prrsiandataset/actions/runs/43476706218). These 63 pairs are a review queue, not 63 confirmed duplicates or semantic families.
