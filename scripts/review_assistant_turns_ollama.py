@@ -93,7 +93,7 @@ def ollama_chat(base_url,model,messages,timeout,num_ctx=None):
 
 def atomic_json(path, payload):
     temp=path.with_suffix(path.suffix+".tmp")
-    temp.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+    temp.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     os.replace(temp,path)
 
 def load_existing(output,resume,manifest_path,expected_manifest):
