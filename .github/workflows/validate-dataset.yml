@@ -7,6 +7,7 @@ on:
       - "data/staging/**/*.jsonl"
       - "scripts/validate_dataset.py"
       - "scripts/export_turn_level_sft.py"
+      - "scripts/review_assistant_turns_ollama.py"
       - "scripts/propose_semantic_families.py"
       - "scripts/build_semantic_review_register.py"
       - "scripts/build_unmatched_record_inventory.py"
@@ -24,6 +25,7 @@ on:
     paths:
       - "data/staging/**/*.jsonl"
       - "scripts/validate_dataset.py"
+      - "scripts/review_assistant_turns_ollama.py"
       - "schemas/conversation.schema.json"
       - "tests/**"
       - ".github/workflows/validate-dataset.yml"
