@@ -5,6 +5,7 @@ on:
     paths:
       - "data/staging/**/*.jsonl"
       - "scripts/validate_dataset.py"
+      - "scripts/propose_semantic_families.py"
       - "schemas/conversation.schema.json"
       - "config/taxonomy_exceptions_v1.json"
       - "tests/**"
@@ -56,10 +57,19 @@ jobs:
             exit 1
           fi
           python scripts/validate_dataset.py --strict-taxonomy --taxonomy-exceptions config/taxonomy_exceptions_v1.json "${files[@]}"
-      - name: Upload validation report
+      - name: Generate semantic-family review candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          files=(data/staging/**/*.jsonl)
+          python scripts/propose_semantic_families.py --output reports/semantic_family_candidates.json "${files[@]}"
+      - name: Upload validation and semantic review reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: staging-validation-report
-          path: reports/staging_validation.json
+          name: staging-validation-and-semantic-review
+          path: |
+            reports/staging_validation.json
+            reports/semantic_family_candidates.json
           if-no-files-found: ignore
