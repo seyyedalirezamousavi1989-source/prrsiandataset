@@ -104,4 +104,4 @@ This file is the durable source of truth for project order and continuation. Upd
 - Existing `train` values are staging labels, not final leakage-resistant splits.
 
 ## Exact next action
-Resolve the semantic-dedup audit candidates with editorial review, then plan a controlled native-Persian human-review pass. Reconcile the 59 legacy missing review-status warnings without falsely marking records reviewed. Do not create final train/validation/test splits or start training until review and dedup decisions are recorded.
+Begin human review using `docs/HUMAN_REVIEW_REGISTER_V1.md`, starting with the six candidate pairs in its adjudication queue and then proceeding through the general-Persian inventory. Review identity records separately. Record decisions and reviewer/date evidence before changing review metadata. Do not create final train/validation/test/challenge splits or start training until review and dedup decisions are recorded.
