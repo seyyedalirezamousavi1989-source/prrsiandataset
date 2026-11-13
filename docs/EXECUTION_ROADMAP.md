@@ -1,6 +1,6 @@
 # PersianDataset Execution Roadmap
 
-**Status:** Active; follow this order unless a documented blocker requires a change.
+**Status:** Phase 1 completed; Phase 2 in progress (advanced pilot batch v2 added).
 **Target:** High-quality Persian conversational SFT data for Qwen3.5-4B with Unsloth.
 **Owner context:** Creator/developer: Alireza Mousavi; assistant project: LocalChat Agent; associated research label: AURORA QUANT.
 
@@ -89,6 +89,8 @@ This file is the durable source of truth for project order and continuation. Upd
 - Exit gate: preference data has clear labels, provenance, and evidence of usefulness.
 
 ## Current progress snapshot
+- Phase 1 completed: taxonomy and authoring rules are documented in docs/ADVANCED_DATA_AUTHORING_GUIDE.md.
+- Phase 2 started: data/staging/advanced_pilot_v2.jsonl adds 15 original curated conversation records. They are staging data, not human-reviewed or final split data.
 - Repository specification, schema, identity profile, validator draft, and initial staging pilots were previously added.
 - Previously reported staging counts: pilot_v0 15 records, pilot_v1 21 records, identity_v1 8 records. Recount from repository contents before treating these totals as authoritative.
 - Existing pilot records were marked train for staging convenience; these are not final training splits.
@@ -96,4 +98,4 @@ This file is the durable source of truth for project order and continuation. Upd
 - The current schema represents text-only system, user, and assistant messages; it does not define tool-call structures. Do not add tool-call traces without a deliberate schema version change.
 
 ## Exact next action
-Continue at Phase 1: Taxonomy and authoring specification. After documenting the taxonomy and authoring rules, move to Phase 2 and add the next versioned curated pilot batch. Do not jump to Unsloth training.
+Continue Phase 2: inspect coverage across all staging batches, identify gaps, then add another small, diverse curated batch. After that, proceed to Phase 3 human linguistic and behavioral review. Do not jump to training.
