@@ -14,13 +14,13 @@ The model must return a Persian rationale, self-reported confidence, evidence me
 Make sure Ollama is running and the exact model tag is installed. Example:
 ```powershell
 ollama list
-python scripts/review_assistant_turns_ollama.py --model qwen3.5:9b --limit 10 --output reports/ai_turn_review_pilot.jsonl data/staging/advanced_pilot_v1.jsonl data/staging/advanced_pilot_v2.jsonl
+python scripts/review_assistant_turns_ollama.py --model qwen3.5:9b --limit 10 --num-predict 2048 --output reports/ai_turn_review_pilot.jsonl data/staging/persian_language_excellence_v1.jsonl
 ```
 The model name above is an example only. Use the exact installed tag shown by `ollama list`.
 
 Continue a partially completed run using the same model, endpoint, and identical source files:
 ```powershell
-python scripts/review_assistant_turns_ollama.py --model qwen3.5:9b --resume --output reports/ai_turn_review_pilot.jsonl data/staging/advanced_pilot_v1.jsonl data/staging/advanced_pilot_v2.jsonl
+python scripts/review_assistant_turns_ollama.py --model qwen3.5:9b --resume --num-predict 2048 --output reports/ai_turn_review_pilot.jsonl data/staging/persian_language_excellence_v1.jsonl
 ```
 
 For a full corpus review, use a new output path and explicitly list all intended general-track files. Keep the separate identity and Forex tracks out of this run.
