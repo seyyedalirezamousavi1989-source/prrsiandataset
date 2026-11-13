@@ -42,3 +42,25 @@ class ValidatorTests(unittest.TestCase):
             self.assertTrue(any("not found" in e for e in validate_files([p])["errors"]))
 
 if __name__ == "__main__": unittest.main()
+
+
+    def test_human_review_requires_reviewer_and_date(self):
+        row = record(); row["quality"]["review_status"] = "human_reviewed"
+        errors = validate_record(row, "x", 1)[0]
+        self.assertTrue(any("requires quality.reviewer" in e for e in errors))
+        self.assertTrue(any("requires quality.reviewed_at" in e for e in errors))
+
+    def test_human_review_with_evidence(self):
+        row = record()
+        row["quality"].update({"review_status": "human_reviewed", "reviewer": "reviewer-1", "reviewed_at": "2026-11-13"})
+        self.assertEqual(validate_record(row, "x", 1)[0], [])
+
+    def test_invalid_review_date(self):
+        row = record()
+        row["quality"].update({"reviewer": "reviewer-1", "reviewed_at": "13/11/2026"})
+        self.assertTrue(any("ISO date" in e for e in validate_record(row, "x", 1)[0]))
+
+    def test_extended_quality_scores(self):
+        row = record()
+        row["quality"].update({"tone_appropriateness": 5, "non_redundancy": 4})
+        self.assertEqual(validate_record(row, "x", 1)[0], [])
