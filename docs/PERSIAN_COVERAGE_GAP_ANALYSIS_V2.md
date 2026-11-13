@@ -131,3 +131,29 @@ Before accepting V5 into the staging repository:
 Proceed with a V5 batch of 100 records using the targets above. This is a measured expansion rather than an arbitrary volume increase. After V5, repeat the coverage analysis and semantic triage before deciding whether another batch is justified.
 
 **Important limitation:** this report measures the metadata and conversation lengths in the fetched repository snapshot. It does not claim that all 259 conversations have received human linguistic review. Human review status must remain explicit and honest.
+
+
+## 8. V5 progress update (2026-11-13)
+
+After the original snapshot above, V5 has progressed to five parts:
+
+| V5 part | Records | IDs |
+|---|---:|---|
+| Part 1 | 10 | fa-exc-0161–fa-exc-0170 |
+| Part 2 | 10 | fa-exc-0171–fa-exc-0180 |
+| Part 3 | 10 | fa-exc-0181–fa-exc-0190 |
+| Part 4 | 10 | fa-exc-0191–fa-exc-0200 |
+| Part 5 | 10 | fa-exc-0201–fa-exc-0210 |
+| **V5 total so far** | **50** | |
+
+The 50 V5 records are additional to the 160 V1–V4 records, giving 210 Persian language excellence records in these batches. This does not revise the 272-record repository-wide snapshot above, which was taken before the V5 batches were added.
+
+Part 5 was intentionally targeted toward the gaps identified in this report:
+- 8- and 10-message conversations to strengthen longer context chains;
+- 3 formal and 3 mixed-register records;
+- 3 `fa-en` records using English technical terms only where contextually justified;
+- formal workplace writing, tactful disagreement, API rate-limit explanation, dependency-aware release planning, selective constraint retention, exact-format instruction following, and proportionate emotional support.
+
+Part 5 structural checks passed locally before commit: 10 records, IDs `fa-exc-0201` through `fa-exc-0210`, alternating roles, 6–10 messages, valid canonical domains/register/language values, and all review statuses set to `unreviewed`. The committed file was fetched back and matched the authored content exactly.
+
+This update does not constitute human linguistic review, semantic deduplication, or approval for training. Re-run repository-wide coverage and semantic near-duplicate analysis after the full V5 candidate batch is complete.
