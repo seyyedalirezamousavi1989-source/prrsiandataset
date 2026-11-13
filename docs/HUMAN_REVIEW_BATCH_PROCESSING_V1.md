@@ -3,7 +3,7 @@
 ## Goal and safeguards
 This utility divides the 120-record sample-level taxonomy adjudication packet into manageable CSV files. It preserves every source column and conversation, uses deterministic source-row order, and writes a manifest containing exact sample membership and SHA-256 checksums. It never makes a taxonomy decision.
 
-Keep the original generated master CSV unchanged. The manifest and original batch files are the baseline. To review, copy batch CSVs to a separate working directory and edit only the adjudication columns. Do not edit the manifest or baseline batch files. The merge command currently verifies the baseline batch checksums, so reviewed copies must be placed in a separate reviewed-batches directory and their hashes must be updated through a future explicit review-import workflow; do not manually alter the manifest.
+Keep the original generated master CSV, manifest, and baseline batch files unchanged. Copy the batch CSVs to a separate reviewed-batches directory and edit only the adjudication columns. The merge command verifies baseline files against the manifest, then compares each reviewed copy with its baseline and rejects any protected-field change.
 
 ## Split
 ```bash
@@ -26,9 +26,6 @@ python scripts/split_taxonomy_review_batches.py merge \
   --json-report reports/taxonomy_review_batch_merge_report.json
 ```
 
-Merge checks the unchanged baseline template checksum, every batch checksum, exact batch membership and order, no missing/duplicate/unknown sample IDs, and complete packet coverage. It restores master-template order and validates the merged decisions using the existing adjudication validator. The output is not overwritten. Add `--require-complete` only when every row must have a final human decision; expert-review outcomes are allowed but remain unresolved.
+Before merging, copy all baseline CSVs to `reports/taxonomy_review_batches_v1_reviewed/` and edit those copies. Merge checks the unchanged baseline template and batch checksums, exact batch membership/order, protected-field equality, no missing/duplicate/unknown sample IDs, and complete packet coverage. It restores master-template order and validates the merged decisions using the existing adjudication validator. The output is not overwritten. Add `--require-complete` only when every row must have a final human decision; expert-review outcomes are allowed but remain unresolved.
 
-## Important current limitation
-V1 intentionally refuses edited baseline batch files. This protects the checksum chain, but means reviewed CSVs cannot yet be imported by the merge command. A subsequent reviewed-batch import feature must explicitly verify each reviewed file against the baseline batch, permit changes only in adjudication columns, then merge. Do not bypass this safeguard by editing the manifest.
-
-No semantic families, splits, quality scores, source staging revisions, or training approval are created.
+Baseline CSVs and the manifest are immutable reference inputs. Reviewed CSVs are separate working copies; never rewrite baseline hashes or manifest contents to make a modified baseline appear valid.
