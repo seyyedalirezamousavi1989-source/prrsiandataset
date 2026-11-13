@@ -64,6 +64,8 @@ jobs:
           shopt -s globstar nullglob
           files=(data/staging/**/*.jsonl)
           python scripts/propose_semantic_families.py --output reports/semantic_family_candidates.json "${files[@]}"
+      - name: Build blank human adjudication register
+        run: python scripts/build_semantic_review_register.py --input reports/semantic_family_candidates.json --output reports/SEMANTIC_FAMILY_ADJUDICATION_REGISTER_V1.csv
       - name: Upload validation and semantic review reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -72,4 +74,5 @@ jobs:
           path: |
             reports/staging_validation.json
             reports/semantic_family_candidates.json
+            reports/SEMANTIC_FAMILY_ADJUDICATION_REGISTER_V1.csv
           if-no-files-found: ignore
