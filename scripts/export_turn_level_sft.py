@@ -38,7 +38,7 @@ def sha256(path: Path) -> str:
 
 
 def load_sources(paths):
-    validation = validate_files(paths, strict_taxonomy=True, training_ready=False)
+    exception_path = Path(__file__).resolve().parent.parent / "config" / "taxonomy_exceptions_v1.json"\n    exceptions = json.loads(exception_path.read_text(encoding="utf-8")) if exception_path.exists() else {}\n    validation = validate_files(paths, strict_taxonomy=True, training_ready=False, taxonomy_exceptions=exceptions)
     if validation["errors"]:
         raise ExportError("Dataset validation failed:\n" + "\n".join(validation["errors"]))
     rows = []
