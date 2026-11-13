@@ -231,3 +231,27 @@ All ten conversations contain eight messages (four user/assistant pairs), use Pe
 Structural checks passed: 10 unique sequential IDs, non-empty alternating messages, canonical domains, valid register values, 2–4 subskills, and all review statuses `unreviewed`. The committed JSONL was fetched back and matched the authored content exactly.
 
 V5 now contains 80 records across parts 1–8 (`fa-exc-0161`–`fa-exc-0240`). This is synthetic staging data, not human-reviewed or training-approved.
+
+
+## 12. V5 part 9 progress update (2026-11-13)
+
+V5 part 9 adds 10 candidate conversations, IDs `fa-exc-0241`–`fa-exc-0250`.
+
+| Primary domain | Records |
+|---|---:|
+| instruction_following | 1 |
+| ambiguity_handling | 1 |
+| correction_recovery | 1 |
+| truthfulness | 1 |
+| adaptive_communication | 1 |
+| multi_turn_planning | 1 |
+| intent_understanding | 1 |
+| pragmatics_tone | 1 |
+| context_continuity | 1 |
+| explanation_reasoning | 1 |
+
+All ten records are Persian-only (`fa`), have eight non-empty alternating messages, and remain `unreviewed`. The scenarios cover multi-constraint requests and removing unsupported additions, minimal clarification for incomplete planning, transparent correction of an assistant's own date error, fidelity to source certainty, context-sensitive group messages, dependency-aware planning with a fallback, practical support rather than generic reassurance, tactful disagreement, selective retention of travel constraints across a topic shift, and adapting a technical explanation to a non-technical colleague.
+
+Structural checks passed: 10 unique sequential IDs, canonical domains, valid registers, 2–4 subskills, and all review statuses `unreviewed`. The committed JSONL was fetched back and matched the authored content exactly.
+
+V5 now contains 90 records across parts 1–9 (`fa-exc-0161`–`fa-exc-0250`). This is synthetic staging data, not human-reviewed or training-approved.
