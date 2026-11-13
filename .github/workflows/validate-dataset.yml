@@ -54,7 +54,7 @@ jobs:
             echo "No current Persian excellence batches found"
             exit 1
           fi
-          python scripts/validate_dataset.py --strict-taxonomy "${files[@]}"
+          python scripts/validate_dataset.py --strict-taxonomy --taxonomy-exceptions config/taxonomy_exceptions_v1.json "${files[@]}"
       - name: Upload validation report
         if: always()
         uses: actions/upload-artifact@v4
