@@ -55,3 +55,7 @@ The general Persian capability layer is distinct from specialist domain skills. 
 ## Status
 
 Project specification and initial curated pilot are committed. The pilot is not yet a large-scale training corpus, and no model training has been performed by this repository workflow. Expand only after schema validation, human review, deduplication, and baseline evaluation.
+
+## Execution order and current pilot
+
+Follow [docs/EXECUTION_ROADMAP.md](docs/EXECUTION_ROADMAP.md) as the durable project sequence. The detailed taxonomy and example-authoring rules are in [docs/ADVANCED_DATA_AUTHORING_GUIDE.md](docs/ADVANCED_DATA_AUTHORING_GUIDE.md). The next versioned staging batch is [advanced_pilot_v2.jsonl](data/staging/advanced_pilot_v2.jsonl) (15 records; staging only, not yet human-reviewed or split for final training).
