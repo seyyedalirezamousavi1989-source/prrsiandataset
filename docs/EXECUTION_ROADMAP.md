@@ -50,6 +50,7 @@ This file is the durable source of truth for project order and continuation. Upd
 - Fixed a Bash variable-escaping defect discovered in the first CI run; the corrected workflow was fetched back and the next run passed.
 - Added `docs/SEMANTIC_DEDUP_AUDIT_V1.md` with conservative near-duplicate candidates and editorial recommendations. No records were deleted or changed by this audit.
 - Added `docs/HUMAN_REVIEW_REGISTER_V1.md`: inventory of all 112 staging records, review rubric, review procedure, blank decision fields, and first adjudication queue. Snapshot counts: 59 records missing review metadata, 53 explicitly unreviewed, and 8 identity records; identity remains separate.
+- Added `docs/NEAR_DUPLICATE_ADJUDICATION_PACKET_V1.md` with the full conversation text for all six candidate pairs, cautious AI-assisted recommendations, and blank human decision/reviewer/date fields. This makes editorial review actionable without pretending that an AI audit is human approval.
 - Exit gate: structural validation is reproducible; remaining Phase 4 work is resolving legacy metadata warnings and applying human/editorial duplicate decisions before final split creation.
 
 ### Phase 5 — Leakage-resistant dataset splits
@@ -104,4 +105,4 @@ This file is the durable source of truth for project order and continuation. Upd
 - Existing `train` values are staging labels, not final leakage-resistant splits.
 
 ## Exact next action
-Begin human review using `docs/HUMAN_REVIEW_REGISTER_V1.md`, starting with the six candidate pairs in its adjudication queue and then proceeding through the general-Persian inventory. Review identity records separately. Record decisions and reviewer/date evidence before changing review metadata. Do not create final train/validation/test/challenge splits or start training until review and dedup decisions are recorded.
+Complete the six candidate-pair decisions in `docs/NEAR_DUPLICATE_ADJUDICATION_PACKET_V1.md` with a Persian-fluent human reviewer, then record outcomes in `docs/HUMAN_REVIEW_REGISTER_V1.md`. Continue the full general-Persian review afterward; review identity records separately. Do not change review metadata without actual human review evidence. Do not create final train/validation/test/challenge splits or start training until review and dedup decisions are recorded.
