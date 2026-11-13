@@ -8,7 +8,7 @@ Each assistant message is reviewed independently with:
 - `negative_or_demonstration_only`
 - `needs_revision`
 
-The model must return a Persian rationale, self-reported confidence, evidence message indices, and issue tags for every assistant turn. The program validates exact turn coverage and evidence indices before saving an annotation.
+The model must return a Persian rationale, self-reported confidence, evidence message indices, and issue tags for every assistant turn. `message_index` always means the original position in the complete conversation array. For compatibility with local models that mistakenly number assistant-only turns from zero, the parser can safely map a complete `0..N-1` assistant-ordinal sequence back to the original assistant message indices; saved annotations always use canonical original indices. Exact original indices take precedence.
 
 ## Run a small pilot first (PowerShell)
 Make sure Ollama is running and the exact model tag is installed. Example:
@@ -33,7 +33,7 @@ Optional controls:
 - `--pause`: seconds between records
 - `--limit`: number of new records in this invocation
 
-## Safety and provenance
+## Index compatibility fix (prompt V2)\n- Prompt version `persian_turn_reviewer_v2` explicitly demonstrates that assistant messages at original positions 1 and 3 must be returned as indices 1 and 3, not 0 and 1.\n- If a model still returns a complete assistant-only ordinal sequence (`0..N-1`), the parser maps it to the sorted original assistant message positions. Partial, duplicated, or otherwise ambiguous index sets are rejected.\n- The normalized JSONL stores only original conversation indices, so downstream turn-level export remains consistent.\n\n## Safety and provenance
 - AI results are always `ai_provisional`; they are not human certification.
 - The model cannot assign human scores, semantic families, dataset splits, or training approval.
 - Source record hashes are embedded in each annotation.
