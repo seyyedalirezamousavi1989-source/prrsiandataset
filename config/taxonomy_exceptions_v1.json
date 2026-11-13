@@ -1,0 +1,7 @@
+{
+  "fa-exc-0190": {
+    "domain": "mixed",
+    "reason": "Legacy V5 sample awaiting human adjudication; provisional mapping candidate is lexical_precision. This exception preserves the source record unchanged and must be removed after a reviewed canonical revision is accepted.",
+    "review_status": "pending_human_adjudication"
+  }
+}
