@@ -53,4 +53,14 @@ class ReviewerTests(unittest.TestCase):
         path=self.root/"revisions.jsonl"; path.write_text("\n".join(json.dumps(x,ensure_ascii=False) for x in [old,new])+"\n",encoding="utf-8")
         _,active,repl=read_jsonl([path]); self.assertEqual([x[0]["sample_id"] for x in active],["new"]); self.assertEqual(repl,{"old":"new"})
 
+    @patch("scripts.review_assistant_turns_ollama.ollama_chat")
+    def test_resume_rejects_tampered_annotation(self,mock):
+        mock.return_value=self.response()
+        review_corpus([self.source],self.output,"reviewer-test:latest","http://localhost:11434",30)
+        saved=json.loads(self.output.read_text(encoding="utf-8").splitlines()[0])
+        saved["assistant_turns"][0]["label"]="human_approved"
+        self.output.write_text(json.dumps(saved,ensure_ascii=False)+"\n",encoding="utf-8")
+        with self.assertRaises(ReviewError):
+            review_corpus([self.source],self.output,"reviewer-test:latest","http://localhost:11434",30,resume=True)
+
 if __name__=="__main__": unittest.main()
