@@ -117,10 +117,16 @@ def review_corpus(paths,output,model,base_url,timeout,num_ctx=None,resume=False,
         for row,path,line_no in active:
             sid=row["sample_id"]
             if sid in existing:
+                saved=existing[sid]
                 expected_hash=sha(json.dumps(row,ensure_ascii=False,sort_keys=True).encode())
-                if existing[sid].get("source_record_sha256")!=expected_hash: raise ReviewError(f"{sid}: source record changed since annotation")
-                for t in existing[sid].get("assistant_turns",[]):
-                    if t.get("label") in counts: counts[t["label"]]+=1
+                if saved.get("source_record_sha256")!=expected_hash: raise ReviewError(f"{sid}: source record changed since annotation")
+                if saved.get("annotation_version")!=ANNOTATION_VERSION or saved.get("prompt_version")!=PROMPT_VERSION:
+                    raise ReviewError(f"{sid}: resume annotation version mismatch")
+                if not isinstance(saved.get("review_model"),str) or not saved["review_model"]:
+                    raise ReviewError(f"{sid}: resume annotation is missing exact model provenance")
+                expected_turns={i for i,m in enumerate(row["messages"]) if m["role"]=="assistant"}
+                validated=parse_model_response(json.dumps({"assistant_turns":saved.get("assistant_turns")},ensure_ascii=False),expected_turns,sid,len(row["messages"]))
+                for t in validated: counts[t["label"]]+=1
                 continue
             if limit is not None and completed>=limit: break
             expected={i for i,m in enumerate(row["messages"]) if m["role"]=="assistant"}
