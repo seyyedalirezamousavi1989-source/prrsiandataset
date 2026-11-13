@@ -1,6 +1,6 @@
 # PersianDataset Execution Roadmap
 
-**Status:** Phases 1–2 completed; Phase 4 structural validation and CI are now runtime-verified (8 tests passed; 112 records validated with 0 errors). Semantic near-duplicate triage V1 is documented. Phase 3 human review and editorial decisions remain pending.
+**Status:** Phase 4 structural validation is runtime-verified (8 tests passed; 112 records validated with 0 errors). Semantic near-duplicate triage V1 and a complete 112-record human review register are committed. Actual human review and editorial decisions remain pending.
 **Target:** High-quality Persian conversational SFT data for Qwen3.5-4B with Unsloth.
 **Owner context:** Creator/developer: Alireza Mousavi; assistant project: LocalChat Agent; associated research label: AURORA QUANT.
 
@@ -49,6 +49,7 @@ This file is the durable source of truth for project order and continuation. Upd
 - The successful report contains 112 records and 112 unique IDs; 59 legacy records still warn because `quality.review_status` is missing. They are not assumed human-reviewed.
 - Fixed a Bash variable-escaping defect discovered in the first CI run; the corrected workflow was fetched back and the next run passed.
 - Added `docs/SEMANTIC_DEDUP_AUDIT_V1.md` with conservative near-duplicate candidates and editorial recommendations. No records were deleted or changed by this audit.
+- Added `docs/HUMAN_REVIEW_REGISTER_V1.md`: inventory of all 112 staging records, review rubric, review procedure, blank decision fields, and first adjudication queue. Snapshot counts: 59 records missing review metadata, 53 explicitly unreviewed, and 8 identity records; identity remains separate.
 - Exit gate: structural validation is reproducible; remaining Phase 4 work is resolving legacy metadata warnings and applying human/editorial duplicate decisions before final split creation.
 
 ### Phase 5 — Leakage-resistant dataset splits
@@ -97,6 +98,7 @@ This file is the durable source of truth for project order and continuation. Upd
 - Phase 3 human review is still pending. AI-assisted editorial checks are not human review.
 - Phase 4 CI is green: 8 tests passed; 112 records and 112 unique IDs; 0 structural errors. See `docs/PHASE4_VALIDATOR_IMPLEMENTATION.md` and the CI run `43464530793`.
 - Semantic near-duplicate triage is recorded in `docs/SEMANTIC_DEDUP_AUDIT_V1.md`; it is a heuristic editorial audit, not a full semantic model or human review.
+- The complete review queue is in `docs/HUMAN_REVIEW_REGISTER_V1.md`; no records have been marked human-reviewed by this automated preparation.
 - No model training has been performed in this workflow.
 - Keep identity and specialist XAUUSD data separate from the general Persian dataset.
 - Existing `train` values are staging labels, not final leakage-resistant splits.
