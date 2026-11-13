@@ -5,6 +5,7 @@ from pathlib import Path
 
 from scripts.validate_dataset import validate_record, validate_files
 from scripts.export_training import prepare_export, ExportError
+from scripts.propose_semantic_families import normalize, tokenize_record, similarity, load_records, build_candidates
 
 
 def record(sample_id="fa-test-1"):
@@ -186,6 +187,40 @@ class ValidatorTests(unittest.TestCase):
             self.assertEqual(manifest["active_record_count"], 1)
             self.assertEqual(manifest["excluded_superseded_count"], 1)
             self.assertEqual([x["sample_id"] for x in splits["train"]], ["fa-new"])
+
+
+    def test_semantic_normalization_handles_arabic_kaf_and_yeh(self):
+        self.assertEqual(normalize("ي ك"), "ی ک")
+
+    def test_semantic_candidate_detects_shared_content_without_assigning_family(self):
+        a = record("fa-a")
+        b = record("fa-b")
+        a["messages"] = [{"role": "user", "content": "چطور خطای سرور را بررسی کنیم و گزارش دقیق تهیه کنیم؟"}, {"role": "assistant", "content": "ابتدا گزارش خطا و وضعیت سرور را بررسی کن."}]
+        b["messages"] = [{"role": "user", "content": "برای بررسی خطای سرور و تهیه گزارش دقیق چه کنیم؟"}, {"role": "assistant", "content": "گزارش خطا و وضعیت سرور را مقایسه کن."}]
+        a["_source_file"] = b["_source_file"] = "test.jsonl"
+        candidates = build_candidates([a, b], threshold=0.1, min_shared=3)
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["decision"], "pending_human_review")
+        self.assertNotIn("semantic_family_id", candidates[0])
+
+    def test_semantic_candidate_skips_superseded_predecessor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = record("fa-old")
+            new = record("fa-new")
+            new["metadata"]["supersedes_sample_id"] = "fa-old"
+            p = Path(tmp) / "data.jsonl"
+            p.write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in (old, new)), encoding="utf-8")
+            active = load_records([p])
+            self.assertEqual([x["sample_id"] for x in active], ["fa-new"])
+
+    def test_semantic_candidate_rejects_missing_predecessor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            new = record("fa-new")
+            new["metadata"]["supersedes_sample_id"] = "fa-absent"
+            p = Path(tmp) / "data.jsonl"
+            p.write_text(json.dumps(new, ensure_ascii=False) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "predecessor absent"):
+                load_records([p])
 
     def test_extended_quality_scores(self):
         row = record()
