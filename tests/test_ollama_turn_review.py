@@ -34,7 +34,7 @@ class OllamaTurnReviewTests(unittest.TestCase):
             "label": label,
             "rationale": "پاسخ با درخواست کاربر سازگار است.",
             "confidence": 0.91,
-            "evidence_message_indices": [idx - 1],
+            "evidence_message_indices": [max(0, idx - 1)],
             "issues": [],
         }
 
