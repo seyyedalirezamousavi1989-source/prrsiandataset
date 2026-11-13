@@ -290,3 +290,10 @@ The 100-record V5 staging batch has received a preliminary structural and lexica
 The audit surfaced one legacy non-canonical primary domain (`fa-exc-0190`, domain `mixed`) and two lexical-overlap review pairs (`fa-exc-0189`/`fa-exc-0243`; `fa-exc-0252`/`fa-exc-0260`). These are review flags only; no records were automatically changed or deleted.
 
 See [PERSIAN_V5_INTERNAL_AUDIT_V1.md](PERSIAN_V5_INTERNAL_AUDIT_V1.md) for method, distributions, caveats, and required next steps. V5 is complete as a staging milestone, not approved for training.
+
+
+## 15. V5 human adjudication packet prepared (2026-11-13)
+
+A reviewer-facing decision packet was added for the three audit flags: the meeting-date correction pair (`fa-exc-0189`/`fa-exc-0243`), the causal-sales reasoning pair (`fa-exc-0252`/`fa-exc-0260`), and the non-canonical domain on `fa-exc-0190`.
+
+See [PERSIAN_V5_HUMAN_ADJUDICATION_PACKET_V1.md](PERSIAN_V5_HUMAN_ADJUDICATION_PACKET_V1.md). The packet contains side-by-side rationale, allowed decision values, and blank reviewer fields. It records no fabricated human decisions. All source staging records remain unchanged; all 100 V5 records remain unreviewed.
