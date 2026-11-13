@@ -1,10 +1,11 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from scripts.review_assistant_turns_ollama import (
-    ReviewError, parse_model_response, load_existing, atomic_json,
+    ReviewError, parse_model_response, load_existing, atomic_json, review_corpus,
 )
 
 
@@ -83,6 +84,70 @@ class OllamaTurnReviewTests(unittest.TestCase):
         self.output.write_text("", encoding="utf-8")
         with self.assertRaisesRegex(ReviewError, "refusing overwrite"):
             load_existing(self.output, False, self.manifest, self.expected)
+
+    def test_empty_model_content_is_rejected_with_clear_diagnostic(self):
+        with self.assertRaisesRegex(ReviewError, "empty content"):
+            parse_model_response("", {1}, "fa-empty", 2)
+
+    def test_invalid_json_includes_response_preview(self):
+        with self.assertRaisesRegex(ReviewError, "response preview"):
+            parse_model_response("not-json", {1}, "fa-bad-json", 2)
+
+    def test_manifest_tracks_partial_run_and_resume_completion(self):
+        source = self.root / "source.jsonl"
+        records = []
+        for sid in ("fa-one", "fa-two"):
+            records.append({
+                "sample_id": sid,
+                "domain": "persian_fluency",
+                "language": "fa",
+                "register": "neutral",
+                "messages": [
+                    {"role": "user", "content": "این عبارت طبیعی است؟"},
+                    {"role": "assistant", "content": "بله، طبیعی است."}
+                ]
+            })
+        source.write_text(
+            "".join(json.dumps(row, ensure_ascii=False) + "\\n" for row in records),
+            encoding="utf-8"
+        )
+
+        response = json.dumps({"assistant_turns": [self.turn(1)]}, ensure_ascii=False)
+        with patch("scripts.review_assistant_turns_ollama.ollama_chat", return_value=("qwen3.5:9b", response)):
+            first = review_corpus(
+                [source], self.output, "qwen3.5:9b", "http://127.0.0.1:11434", 30,
+                limit=1, pause=0
+            )
+        manifest = json.loads(self.manifest.read_text(encoding="utf-8"))
+        self.assertEqual(first["newly_reviewed_records"], 1)
+        self.assertEqual(first["remaining_records"], 1)
+        self.assertEqual(manifest["completed_records"], 1)
+        self.assertFalse(manifest["complete"])
+
+        # Simulate the stale count written by the pre-fix script. Resume must
+        # reconcile it from the validated append-only JSONL before making calls.
+        manifest["completed_records"] = 0
+        manifest["complete"] = False
+        atomic_json(self.manifest, manifest)
+
+        def second_response(*args, **kwargs):
+            checkpoint = json.loads(self.manifest.read_text(encoding="utf-8"))
+            self.assertEqual(checkpoint["completed_records"], 1)
+            return "qwen3.5:9b", response
+
+        with patch("scripts.review_assistant_turns_ollama.ollama_chat", side_effect=second_response):
+            second = review_corpus(
+                [source], self.output, "qwen3.5:9b", "http://127.0.0.1:11434", 30,
+                resume=True, limit=1, pause=0
+            )
+        manifest = json.loads(self.manifest.read_text(encoding="utf-8"))
+        lines = [line for line in self.output.read_text(encoding="utf-8").splitlines() if line.strip()]
+        self.assertEqual(second["already_annotated_records"], 1)
+        self.assertEqual(second["newly_reviewed_records"], 1)
+        self.assertEqual(second["remaining_records"], 0)
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(manifest["completed_records"], 2)
+        self.assertTrue(manifest["complete"])
 
 
 if __name__ == "__main__":
