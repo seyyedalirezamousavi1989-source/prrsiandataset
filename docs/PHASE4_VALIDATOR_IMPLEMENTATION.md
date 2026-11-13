@@ -25,7 +25,9 @@ These fields remain optional for legacy and unreviewed records. No existing reco
 
 ## Verification
 
-Previous CI run `43464530793` passed 8 regression tests and validated 112 staging records with 0 structural errors. The changes in this commit require a new Actions run; do not claim the new tests pass until that run completes.
+Latest verification: GitHub Actions run `43466065519` completed successfully. All 12 regression tests passed; the full staging validator reported 112 records, 112 unique IDs, 0 structural errors, and 59 warnings for legacy records missing `quality.review_status`. The warnings are intentional and no legacy record was silently upgraded.
+
+Workflow: https://github.com/seyyedalirezamousavi1989-source/prrsiandataset/actions/runs/43466065519
 
 Run locally:
 
