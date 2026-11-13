@@ -88,6 +88,41 @@ class ValidatorTests(unittest.TestCase):
         row["quality"].update({"reviewer": "reviewer-1", "reviewed_at": "13/11/2026"})
         self.assertTrue(any("ISO date" in e for e in validate_record(row, "x", 1)[0]))
 
+
+    def test_strict_taxonomy_rejects_noncanonical_domain(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            row = record()
+            row["domain"] = "mixed"
+            p = Path(tmp) / "a.jsonl"
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\\n", encoding="utf-8")
+            self.assertTrue(any("non-canonical primary domain" in e for e in validate_files([p], strict_taxonomy=True)["errors"]))
+
+    def test_training_ready_rejects_unreviewed_record(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "a.jsonl"
+            p.write_text(json.dumps(record(), ensure_ascii=False) + "\\n", encoding="utf-8")
+            self.assertTrue(any("requires quality.review_status=human_reviewed" in e for e in validate_files([p], training_ready=True)["errors"]))
+
+    def test_training_ready_requires_all_human_scores(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            row = record()
+            row["quality"].update({"review_status": "human_reviewed", "reviewer": "reviewer-1", "reviewed_at": "2026-11-13"})
+            p = Path(tmp) / "a.jsonl"
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\\n", encoding="utf-8")
+            self.assertTrue(any("missing valid human scores" in e for e in validate_files([p], training_ready=True)["errors"]))
+
+    def test_training_ready_rejects_superseded_predecessor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = record("fa-old")
+            new = record("fa-new")
+            new["metadata"]["supersedes_sample_id"] = "fa-old"
+            scores = {k: 4 for k in ("intent_fidelity", "context_use", "persian_fluency", "accuracy", "instruction_adherence", "tone_appropriateness", "non_redundancy")}
+            for row in (old, new):
+                row["quality"].update({"review_status": "human_reviewed", "reviewer": "reviewer-1", "reviewed_at": "2026-11-13", **scores})
+            p = Path(tmp) / "a.jsonl"
+            p.write_text("".join(json.dumps(row, ensure_ascii=False) + "\\n" for row in (old, new)), encoding="utf-8")
+            self.assertTrue(any("superseded predecessor" in e for e in validate_files([p], training_ready=True)["errors"]))
+
     def test_extended_quality_scores(self):
         row = record()
         row["quality"].update({"tone_appropriateness": 5, "non_redundancy": 4})
