@@ -110,6 +110,7 @@ def validate_files(paths, strict_taxonomy=False, training_ready=False):
             try: row = json.loads(raw)
             except json.JSONDecodeError as exc: errors.append(f"{path}:{number}: invalid JSON: {exc.msg}"); continue
             e, w = validate_record(row, path, number); errors.extend(e); warnings.extend(w)
+            if not isinstance(row, dict): continue
             if strict_taxonomy and row.get("domain") not in CANONICAL_DOMAINS:
                 errors.append(f"{path}:{number}: non-canonical primary domain {row.get('domain')!r}")
             if training_ready:
@@ -120,7 +121,6 @@ def validate_files(paths, strict_taxonomy=False, training_ready=False):
                 missing_scores = QUALITY_SCORES - valid_scores
                 if missing_scores:
                     errors.append(f"{path}:{number}: training-ready export missing valid human scores: {sorted(missing_scores)}")
-            if not isinstance(row, dict): continue
             sid = row.get("sample_id")
             if nonempty(sid):
                 if sid in ids: errors.append(f"{path}:{number}: duplicate sample_id {sid!r}; first at {ids[sid]}")
