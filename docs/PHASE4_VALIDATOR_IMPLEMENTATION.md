@@ -27,3 +27,8 @@ python scripts/validate_dataset.py data/staging/*.jsonl --json-report reports/st
 ```
 
 Review the report before changing any review statuses or preparing final training data. A nonzero exit or any schema/sequence errors must be investigated rather than bypassed.
+
+
+## CI automation
+
+A GitHub Actions workflow is now committed at `.github/workflows/validate-dataset.yml`. It runs the unit tests and validates all staging JSONL files on relevant pushes and pull requests, and supports manual dispatch. The workflow file and validator/test files were fetched back from GitHub to confirm their committed contents. The actual Actions run result has not been inspected here; do not treat CI as passing until a run is confirmed in the repository Actions tab.
