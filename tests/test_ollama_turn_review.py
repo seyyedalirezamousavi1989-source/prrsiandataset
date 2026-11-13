@@ -18,7 +18,7 @@ class OllamaTurnReviewTests(unittest.TestCase):
         self.expected = {
             "format": "ollama_assistant_turn_review_jsonl",
             "annotation_version": "assistant_turn_review_v1",
-            "prompt_version": "persian_turn_reviewer_v2",
+            "prompt_version": "persian_turn_reviewer_v3",
             "requested_model": "qwen3.5:9b",
             "base_url": "http://127.0.0.1:11434",
             "prompt_sha256": "abc",
@@ -79,6 +79,12 @@ class OllamaTurnReviewTests(unittest.TestCase):
         with self.assertRaisesRegex(ReviewError, "invalid turn annotation fields"):
             parse_model_response(json.dumps(payload, ensure_ascii=False), {1}, "fa-test", 3)
 
+    def test_invalid_turn_fields_reports_missing_and_extra_keys(self):
+        item = self.turn(1)
+        item["unexpected"] = "extra"
+        with self.assertRaisesRegex(ReviewError, "missing=.*extra=\['unexpected'\]"):
+            parse_model_response(json.dumps({"assistant_turns": [item]}, ensure_ascii=False), {1}, "fa-extra", 3)
+
     def test_resume_requires_manifest(self):
         self.output.write_text("", encoding="utf-8")
         with self.assertRaisesRegex(ReviewError, "sidecar manifest"):
@@ -125,6 +131,14 @@ class OllamaTurnReviewTests(unittest.TestCase):
         payload = json.loads(request.data.decode("utf-8"))
         self.assertEqual(payload["options"]["num_predict"], 2048)
         self.assertIs(payload["think"], False)
+        self.assertIsInstance(payload["format"], dict)
+        self.assertEqual(payload["format"]["type"], "object")
+        turn_schema = payload["format"]["properties"]["assistant_turns"]["items"]
+        self.assertFalse(turn_schema["additionalProperties"])
+        self.assertEqual(set(turn_schema["required"]), {
+            "message_index", "label", "rationale", "confidence",
+            "evidence_message_indices", "issues"
+        })
 
     def test_manifest_tracks_partial_run_and_resume_completion(self):
         source = self.root / "source.jsonl"
