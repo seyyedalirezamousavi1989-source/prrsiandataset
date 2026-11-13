@@ -5,6 +5,7 @@ on:
     paths:
       - "data/staging/**/*.jsonl"
       - "scripts/validate_dataset.py"
+      - "schemas/conversation.schema.json"
       - "tests/**"
       - ".github/workflows/validate-dataset.yml"
   pull_request:
