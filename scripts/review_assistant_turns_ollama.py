@@ -92,7 +92,7 @@ def parse_model_response(content, expected, sid, message_count):
         index_map={ordinal:source for ordinal,source in zip(sorted(raw_indices),ordered_source_indices)}
     else:
         raise ReviewError(
-            f"{sid}: assistant turn coverage/index mismatch; "
+            f"{sid}: assistant turn coverage mismatch/index mismatch; "
             f"expected source message indices={sorted(expected)}, returned={sorted(raw_indices)}"
         )
 
