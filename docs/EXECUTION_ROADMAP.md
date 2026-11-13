@@ -46,7 +46,7 @@ This file is the durable source of truth for project order and continuation. Upd
 - Implemented: schema-aligned record validation, message-order checks, corpus-wide duplicate ID and exact-payload checks, supersedes-reference checks, coverage summary, JSON report output.
 - Added regression tests: `tests/test_validate_dataset.py`.
 - Pending: execute regression tests and run the validator over every staging JSONL file together; fix all failures and inspect legacy warnings.
-- Pending: add semantic near-duplicate review and CI automation after runtime behavior is confirmed.
+- Added a GitHub Actions workflow at `.github/workflows/validate-dataset.yml` to run unit tests and full staging validation on relevant pushes/PRs. The workflow and source files were fetched back successfully, but an actual Actions run has not yet been verified. Pending: inspect the first CI run, fix any failures, then add semantic near-duplicate review.
 - Exit gate: tests pass and full-corpus validation is reproducible with reviewed findings.
 
 ### Phase 5 — Leakage-resistant dataset splits
