@@ -208,3 +208,26 @@ Scenarios include contextual sarcasm detection, idiom interpretation and formal 
 Structural checks passed before commit: 10 unique sequential IDs, 8–10 non-empty alternating messages, canonical domains, valid register/language values, 2–4 subskills, and all review statuses `unreviewed`. The committed file was fetched back and matched the authored content exactly.
 
 V5 now contains 70 records across parts 1–7 (`fa-exc-0161`–`fa-exc-0230`). The batch remains synthetic staging data, not human-reviewed or training-approved.
+
+
+## 11. V5 part 8 progress update (2026-11-13)
+
+V5 part 8 adds 10 candidate conversations, IDs `fa-exc-0231`–`fa-exc-0240`.
+
+| Primary domain | Records |
+|---|---:|
+| truthfulness | 2 |
+| correction_recovery | 1 |
+| instruction_following | 1 |
+| ambiguity_handling | 1 |
+| adaptive_communication | 1 |
+| multi_turn_planning | 1 |
+| pragmatics_tone | 1 |
+| explanation_reasoning | 1 |
+| lexical_precision | 1 |
+
+All ten conversations contain eight messages (four user/assistant pairs), use Persian-only (`fa`), and remain `unreviewed`. Scenarios target unsupported inference about workplace and customer intent, resolving contradictory instructions, preserving the writer's register, resolving references across turns, conditional plans and fallbacks, subtle irony, careful scope of claims, and distinctions among near-synonyms.
+
+Structural checks passed: 10 unique sequential IDs, non-empty alternating messages, canonical domains, valid register values, 2–4 subskills, and all review statuses `unreviewed`. The committed JSONL was fetched back and matched the authored content exactly.
+
+V5 now contains 80 records across parts 1–8 (`fa-exc-0161`–`fa-exc-0240`). This is synthetic staging data, not human-reviewed or training-approved.
