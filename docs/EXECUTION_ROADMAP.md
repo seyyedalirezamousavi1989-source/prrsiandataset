@@ -51,6 +51,7 @@ This file is the durable source of truth for project order and continuation. Upd
 - Added `docs/SEMANTIC_DEDUP_AUDIT_V1.md` with conservative near-duplicate candidates and editorial recommendations. No records were deleted or changed by this audit.
 - Added `docs/HUMAN_REVIEW_REGISTER_V1.md`: inventory of all 112 staging records, review rubric, review procedure, blank decision fields, and first adjudication queue. Snapshot counts: 59 records missing review metadata, 53 explicitly unreviewed, and 8 identity records; identity remains separate.
 - Added `docs/NEAR_DUPLICATE_ADJUDICATION_PACKET_V1.md` with the full conversation text for all six candidate pairs, cautious AI-assisted recommendations, and blank human decision/reviewer/date fields. This makes editorial review actionable without pretending that an AI audit is human approval.
+- Hardened schema/validator alignment: declared `metadata.supersedes_sample_id`, added the remaining two review rubric scores, and require reviewer plus ISO review date for `human_reviewed`/`rejected` statuses. CI now also triggers on schema changes. New regression coverage added; the latest run is pending after correcting a test-file formatting issue.
 - Exit gate: structural validation is reproducible; remaining Phase 4 work is resolving legacy metadata warnings and applying human/editorial duplicate decisions before final split creation.
 
 ### Phase 5 — Leakage-resistant dataset splits
