@@ -7,6 +7,7 @@ on:
       - "scripts/validate_dataset.py"
       - "scripts/propose_semantic_families.py"
       - "scripts/build_semantic_review_register.py"
+      - "scripts/build_unmatched_record_inventory.py"
       - "schemas/conversation.schema.json"
       - "config/taxonomy_exceptions_v1.json"
       - "tests/**"
@@ -67,6 +68,13 @@ jobs:
           python scripts/propose_semantic_families.py --output reports/semantic_family_candidates.json "${files[@]}"
       - name: Build blank human adjudication register
         run: python scripts/build_semantic_review_register.py --input reports/semantic_family_candidates.json --output reports/SEMANTIC_FAMILY_ADJUDICATION_REGISTER_V1.csv
+      - name: Build unmatched-record human review inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          files=(data/staging/**/*.jsonl)
+          python scripts/build_unmatched_record_inventory.py --candidates reports/semantic_family_candidates.json --csv-output reports/UNMATCHED_RECORD_HUMAN_REVIEW_V1.csv --summary-output reports/unmatched_record_summary.json "${files[@]}"
       - name: Upload validation and semantic review reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,4 +84,6 @@ jobs:
             reports/staging_validation.json
             reports/semantic_family_candidates.json
             reports/SEMANTIC_FAMILY_ADJUDICATION_REGISTER_V1.csv
+            reports/UNMATCHED_RECORD_HUMAN_REVIEW_V1.csv
+            reports/unmatched_record_summary.json
           if-no-files-found: ignore
