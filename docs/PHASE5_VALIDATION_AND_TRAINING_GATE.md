@@ -43,3 +43,10 @@ python scripts/validate_dataset.py --strict-taxonomy data/staging/persian_langua
 ```
 
 The CI workflow executes the regression tests, full structural validation, and strict taxonomy validation. Check the GitHub Actions run associated with the latest commit before treating this phase as verified.
+
+
+## Taxonomy exception policy (2026-11-13)
+
+The V5 strict-taxonomy CI initially identified `fa-exc-0190` (`domain=mixed`). This record is already in the human-adjudication packet and must not be silently rewritten. The CI now accepts only an exact, explicitly documented exception from `config/taxonomy_exceptions_v1.json`, matching both sample ID and current domain and requiring a non-empty rationale. It emits a warning for that exception. Any other non-canonical domain remains a blocking error.
+
+The exception is temporary. Once a human reviewer selects and approves a canonical domain and a versioned revision is created, remove the exception in the same reviewed change. This does not mean `fa-exc-0190` is approved for training; its review status remains `unreviewed`, and the training-ready gate still blocks it.
