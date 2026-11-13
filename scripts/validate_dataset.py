@@ -14,6 +14,14 @@ TOP = {"sample_id", "messages", "domain", "split", "language", "register", "subs
 QUALITY = {"intent_fidelity", "context_use", "persian_fluency", "accuracy", "instruction_adherence", "tone_appropriateness", "non_redundancy", "review_status", "reviewer", "reviewed_at"}
 QUALITY_SCORES = {"intent_fidelity", "context_use", "persian_fluency", "accuracy", "instruction_adherence", "tone_appropriateness", "non_redundancy"}
 PERSIAN = re.compile(r"[\u0600-\u06FF]")
+CANONICAL_DOMAINS = {
+    "persian_fluency", "everyday_dialogue", "intent_understanding",
+    "context_continuity", "ambiguity_handling", "multi_turn_planning",
+    "instruction_following", "colloquial_noisy_input", "pragmatics_tone",
+    "lexical_precision", "sentence_construction", "explanation_reasoning",
+    "truthfulness", "correction_recovery", "emotional_support",
+    "adaptive_communication",
+}
 
 def nonempty(value):
     return isinstance(value, str) and bool(value.strip())
