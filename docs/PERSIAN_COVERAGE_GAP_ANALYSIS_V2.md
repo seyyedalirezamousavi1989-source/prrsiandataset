@@ -255,3 +255,29 @@ All ten records are Persian-only (`fa`), have eight non-empty alternating messag
 Structural checks passed: 10 unique sequential IDs, canonical domains, valid registers, 2–4 subskills, and all review statuses `unreviewed`. The committed JSONL was fetched back and matched the authored content exactly.
 
 V5 now contains 90 records across parts 1–9 (`fa-exc-0161`–`fa-exc-0250`). This is synthetic staging data, not human-reviewed or training-approved.
+
+
+## 13. V5 part 10 capstone completion (2026-11-13)
+
+V5 part 10 adds 10 candidate conversations, IDs `fa-exc-0251`–`fa-exc-0260`.
+
+| Primary domain | Records |
+|---|---:|
+| multi_turn_planning | 1 |
+| truthfulness | 1 |
+| instruction_following | 1 |
+| context_continuity | 1 |
+| ambiguity_handling | 1 |
+| correction_recovery | 1 |
+| pragmatics_tone | 1 |
+| adaptive_communication | 1 |
+| lexical_precision | 1 |
+| explanation_reasoning | 1 |
+
+Conversation lengths: six 8-message, three 10-message, and one 12-message conversation. All records are Persian-only (`fa`) and remain `unreviewed`.
+
+The capstone scenarios integrate long-range planning with dependencies and contingencies; evidence-based causal claims; exact multi-constraint writing; context retention across a topic switch and self-correction of unsupported product attributes; layered referent clarification; transparent repair of multiple assistant-invented details; interpretation of customer sarcasm without repeating unnecessary questions; audience-sensitive register conversion; distinctions among completion, ongoing work and planned work; and synthesis that separates observed correlation from causal proof.
+
+Structural checks passed: 10 unique sequential IDs, 8–12 non-empty alternating messages, canonical domains, valid registers, 2–4 subskills, and all review statuses `unreviewed`. The committed JSONL was fetched back and matched the authored content exactly.
+
+**V5 initial 100-record build is complete** across parts 1–10 (`fa-exc-0161`–`fa-exc-0260`). This milestone means the planned staging batch is complete; it does not mean the dataset is human-reviewed, deduplicated, benchmarked, or approved for training.
