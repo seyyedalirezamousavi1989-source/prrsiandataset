@@ -1,6 +1,6 @@
 # PersianDataset Execution Roadmap
 
-**Status:** Phases 1–2 completed; advanced pilot batches v2–v7 staged. Phase 3 human review remains pending. Phase 4 validator implementation and regression tests are committed but not yet runtime-verified.
+**Status:** Phases 1–2 completed; Phase 4 structural validation and CI are now runtime-verified (8 tests passed; 112 records validated with 0 errors). Semantic near-duplicate triage V1 is documented. Phase 3 human review and editorial decisions remain pending.
 **Target:** High-quality Persian conversational SFT data for Qwen3.5-4B with Unsloth.
 **Owner context:** Creator/developer: Alireza Mousavi; assistant project: LocalChat Agent; associated research label: AURORA QUANT.
 
@@ -45,9 +45,11 @@ This file is the durable source of truth for project order and continuation. Upd
 ### Phase 4 — Automated data quality pipeline
 - Implemented: schema-aligned record validation, message-order checks, corpus-wide duplicate ID and exact-payload checks, supersedes-reference checks, coverage summary, JSON report output.
 - Added regression tests: `tests/test_validate_dataset.py`.
-- Pending: execute regression tests and run the validator over every staging JSONL file together; fix all failures and inspect legacy warnings.
-- Added a GitHub Actions workflow at `.github/workflows/validate-dataset.yml` to run unit tests and full staging validation on relevant pushes/PRs. The workflow and source files were fetched back successfully, but an actual Actions run has not yet been verified. Pending: inspect the first CI run, fix any failures, then add semantic near-duplicate review.
-- Exit gate: tests pass and full-corpus validation is reproducible with reviewed findings.
+- Verified in GitHub Actions run `43464530793` on commit `0482673512776fecd1f41e1f2f19d03b2d1a3548`: all 8 regression tests passed and all staging files validated with 0 errors.
+- The successful report contains 112 records and 112 unique IDs; 59 legacy records still warn because `quality.review_status` is missing. They are not assumed human-reviewed.
+- Fixed a Bash variable-escaping defect discovered in the first CI run; the corrected workflow was fetched back and the next run passed.
+- Added `docs/SEMANTIC_DEDUP_AUDIT_V1.md` with conservative near-duplicate candidates and editorial recommendations. No records were deleted or changed by this audit.
+- Exit gate: structural validation is reproducible; remaining Phase 4 work is resolving legacy metadata warnings and applying human/editorial duplicate decisions before final split creation.
 
 ### Phase 5 — Leakage-resistant dataset splits
 - Group by conversation family, source, prompt template, and semantic near-duplicate cluster before splitting.
@@ -93,10 +95,11 @@ This file is the durable source of truth for project order and continuation. Upd
 - Phase 2: pilot batches v0–v7 exist as staging inputs; the current inventory previously counted 112 records across nine files, including eight identity records and five revision records. Recount from the repository before using this as an authoritative current total.
 - Coverage audit V2 documents register imbalance, legacy missing review metadata, supersedes handling and remaining quality gates.
 - Phase 3 human review is still pending. AI-assisted editorial checks are not human review.
-- Phase 4 validator and regression-test files are committed, but tests and full-corpus execution have not yet been run. See `docs/PHASE4_VALIDATOR_IMPLEMENTATION.md`.
+- Phase 4 CI is green: 8 tests passed; 112 records and 112 unique IDs; 0 structural errors. See `docs/PHASE4_VALIDATOR_IMPLEMENTATION.md` and the CI run `43464530793`.
+- Semantic near-duplicate triage is recorded in `docs/SEMANTIC_DEDUP_AUDIT_V1.md`; it is a heuristic editorial audit, not a full semantic model or human review.
 - No model training has been performed in this workflow.
 - Keep identity and specialist XAUUSD data separate from the general Persian dataset.
 - Existing `train` values are staging labels, not final leakage-resistant splits.
 
 ## Exact next action
-Run `python -m unittest discover -s tests -v`, then run the validator once over all staging JSONL files together with `--json-report`. Inspect and fix runtime/test failures before semantic deduplication or final splitting. Do not start training.
+Resolve the semantic-dedup audit candidates with editorial review, then plan a controlled native-Persian human-review pass. Reconcile the 59 legacy missing review-status warnings without falsely marking records reviewed. Do not create final train/validation/test splits or start training until review and dedup decisions are recorded.
