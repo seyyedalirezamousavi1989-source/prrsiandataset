@@ -24,6 +24,20 @@ class BatchTests(unittest.TestCase):
   report=merge(self.template,d/"manifest.json",d,out,self.tax,self.root/"report.json")
   self.assertEqual(report["summary"]["reviewed_records"],5)
   self.assertTrue(out.exists())
+ def test_merges_reviewed_copy_without_touching_baseline(self):
+  d=self.root/"baseline";split(self.template,d,2)
+  reviewed=self.root/"reviewed";reviewed.mkdir()
+  for p in d.glob("*.csv"):
+   (reviewed/p.name).write_bytes(p.read_bytes())
+  path=reviewed/"taxonomy_review_batch_001.csv"
+  rows=list(csv.DictReader(path.open(encoding="utf-8-sig",newline="")))
+  rows[0].update(primary_behavior_assessment="Social conversational response",adjudicated_canonical_domain="everyday_dialogue",decision="accepted_suggestion",reviewer="Reviewer A",review_date="2026-11-13",adjudication_rationale="The assistant responds to the user's conversational greeting.")
+  with path.open("w",encoding="utf-8-sig",newline="") as f:
+   w=csv.DictWriter(f,fieldnames=FIELDS);w.writeheader();w.writerows(rows)
+  out=self.root/"merged.csv"
+  report=merge(self.template,d/"manifest.json",reviewed,out,self.tax,None)
+  self.assertEqual(report["summary"]["decision_counts"]["accepted_suggestion"],1)
+  self.assertTrue((d/"taxonomy_review_batch_001.csv").exists())
  def test_refuses_modified_batch(self):
   d=self.root/"batches";split(self.template,d,2)
   with (d/"taxonomy_review_batch_001.csv").open("a",encoding="utf-8") as f:f.write("\n")
