@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "data/staging/**/*.jsonl"
-      - "scripts/validate_dataset.py"
+      - "scripts/validate_dataset.py"\n      - "scripts/export_turn_level_sft.py"
       - "scripts/propose_semantic_families.py"
       - "scripts/build_semantic_review_register.py"
       - "scripts/build_unmatched_record_inventory.py"
