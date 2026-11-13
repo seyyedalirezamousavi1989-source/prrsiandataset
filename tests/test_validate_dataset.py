@@ -97,6 +97,28 @@ class ValidatorTests(unittest.TestCase):
             p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
             self.assertTrue(any("non-canonical primary domain" in e for e in validate_files([p], strict_taxonomy=True)["errors"]))
 
+
+    def test_taxonomy_exception_is_exact_and_warns(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            row = record()
+            row["domain"] = "mixed"
+            p = Path(tmp) / "a.jsonl"
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+            exceptions = {row["sample_id"]: {"domain": "mixed", "reason": "pending human taxonomy adjudication"}}
+            report = validate_files([p], strict_taxonomy=True, taxonomy_exceptions=exceptions)
+            self.assertEqual(report["errors"], [])
+            self.assertTrue(any("temporary taxonomy exception" in w for w in report["warnings"]))
+
+    def test_taxonomy_exception_does_not_allow_different_domain(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            row = record()
+            row["domain"] = "mixed"
+            p = Path(tmp) / "a.jsonl"
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+            exceptions = {row["sample_id"]: {"domain": "identity", "reason": "wrong domain"}}
+            report = validate_files([p], strict_taxonomy=True, taxonomy_exceptions=exceptions)
+            self.assertTrue(any("non-canonical primary domain" in e for e in report["errors"]))
+
     def test_training_ready_rejects_unreviewed_record(self):
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / "a.jsonl"
