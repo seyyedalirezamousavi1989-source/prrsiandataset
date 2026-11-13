@@ -89,7 +89,7 @@ def validate_record(row, path, line):
             except (TypeError, ValueError): errors.append(f"{where}: human review status requires quality.reviewed_at as YYYY-MM-DD")
     return errors, warnings
 
-def validate_files(paths):
+def validate_files(paths, strict_taxonomy=False, training_ready=False):
     errors, warnings, ids, payloads, supersedes = [], [], {}, {}, {}
     file_counts, coverage = Counter(), {k: Counter() for k in ("domain", "register", "language", "split", "turn_count", "provenance", "review_status")}
     total = 0
@@ -102,6 +102,16 @@ def validate_files(paths):
             try: row = json.loads(raw)
             except json.JSONDecodeError as exc: errors.append(f"{path}:{number}: invalid JSON: {exc.msg}"); continue
             e, w = validate_record(row, path, number); errors.extend(e); warnings.extend(w)
+            if strict_taxonomy and row.get("domain") not in CANONICAL_DOMAINS:
+                errors.append(f"{path}:{number}: non-canonical primary domain {row.get('domain')!r}")
+            if training_ready:
+                q = row.get("quality") if isinstance(row.get("quality"), dict) else {}
+                if q.get("review_status") != "human_reviewed":
+                    errors.append(f"{path}:{number}: training-ready export requires quality.review_status=human_reviewed")
+                valid_scores = {k for k, v in q.items() if k in QUALITY_SCORES and isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 5}
+                missing_scores = QUALITY_SCORES - valid_scores
+                if missing_scores:
+                    errors.append(f"{path}:{number}: training-ready export missing valid human scores: {sorted(missing_scores)}")
             if not isinstance(row, dict): continue
             sid = row.get("sample_id")
             if nonempty(sid):
@@ -122,6 +132,10 @@ def validate_files(paths):
             coverage["review_status"][str(q.get("review_status", "missing"))] += 1
             old = meta.get("supersedes_sample_id")
             if nonempty(sid) and nonempty(old): supersedes[sid] = old
+    if training_ready:
+        for old in sorted(set(supersedes.values())):
+            if old in ids:
+                errors.append(f"{old}: superseded predecessor must be excluded from training-ready input")
     for new, old in supersedes.items():
         if old not in ids: errors.append(f"{new}: superseded sample {old!r} not found in supplied files")
         if new == old: errors.append(f"{new}: cannot supersede itself")
@@ -138,8 +152,10 @@ def main():
     parser.add_argument("files", nargs="+", type=Path, help="Pass all staging JSONL files together for global checks")
     parser.add_argument("--json-report", type=Path)
     parser.add_argument("--strict-warnings", action="store_true")
+    parser.add_argument("--strict-taxonomy", action="store_true", help="Reject primary domains outside Taxonomy V2")
+    parser.add_argument("--training-ready", action="store_true", help="Require human-reviewed records, all seven human scores, and no superseded predecessors")
     args = parser.parse_args()
-    report = validate_files(args.files)
+    report = validate_files(args.files, strict_taxonomy=args.strict_taxonomy, training_ready=args.training_ready)
     print(f"TOTAL: {report['total_records']} records | {report['unique_sample_ids']} unique IDs | {len(report['errors'])} errors | {len(report['warnings'])} warnings")
     for name, count in report["files"].items(): print(f"{name}: {count} records")
     for key, values in report["coverage"].items(): print(f"{key}: {json.dumps(values, ensure_ascii=False, sort_keys=True)}")
