@@ -33,14 +33,15 @@ jobs:
       - name: Validate all staging JSONL files
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p reports
           shopt -s globstar nullglob
           files=(data/staging/**/*.jsonl)
-          if (( \${#files[@]} == 0 )); then
+          if (( ${#files[@]} == 0 )); then
             echo "No staging JSONL files found"
             exit 1
           fi
-          python scripts/validate_dataset.py "\${files[@]}" --json-report reports/staging_validation.json
+          python scripts/validate_dataset.py "${files[@]}" --json-report reports/staging_validation.json
       - name: Upload validation report
         if: always()
         uses: actions/upload-artifact@v4
