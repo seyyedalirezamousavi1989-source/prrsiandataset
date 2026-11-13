@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse, csv, hashlib, json, sys
 from pathlib import Path
-from validate_taxonomy_adjudication import read_csv, validate
+from validate_taxonomy_adjudication import read_csv, validate, PROTECTED
 from build_legacy_taxonomy_mapping import canonical_domains
 
 def digest(path):
@@ -52,12 +52,18 @@ def merge(template_path,manifest_path,batch_dir,output_path,taxonomy_path,report
         name=b.get("file","")
         if not name or Path(name).name!=name or name in seen_files: raise ValueError("invalid or duplicate batch filename in manifest")
         seen_files.add(name)
+        baseline_path=manifest_path.parent/name
         path=batch_dir/name
-        if not path.is_file(): raise ValueError(f"missing batch file: {name}")
-        if digest(path)!=b.get("sha256"): raise ValueError(f"batch checksum mismatch: {name}; if reviewed, use a reviewed copy and do not modify the original batch")
-        rows=read_csv(path)
+        if not baseline_path.is_file(): raise ValueError(f"missing baseline batch: {name}")
+        if digest(baseline_path)!=b.get("sha256"): raise ValueError(f"baseline batch checksum mismatch: {name}")
+        if not path.is_file(): raise ValueError(f"missing reviewed batch: {name}")
+        baseline_rows=read_csv(baseline_path); rows=read_csv(path)
         ids=[r["sample_id"] for r in rows]
-        if len(rows)!=b.get("record_count") or ids!=b.get("sample_ids"): raise ValueError(f"batch membership/order mismatch: {name}")
+        if len(rows)!=b.get("record_count") or ids!=b.get("sample_ids"): raise ValueError(f"reviewed batch membership/order mismatch: {name}")
+        if [r["sample_id"] for r in baseline_rows]!=ids: raise ValueError(f"baseline membership mismatch: {name}")
+        for original, reviewed in zip(baseline_rows,rows):
+            for key in PROTECTED:
+                if reviewed.get(key,"")!=original.get(key,""): raise ValueError(f"{name}: protected field changed for {original['sample_id']}: {key}")
         for r in rows:
             sid=r["sample_id"]
             if sid not in expected: raise ValueError(f"unknown sample ID: {sid}")
