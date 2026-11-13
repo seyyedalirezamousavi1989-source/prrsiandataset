@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Create AI-provisional assistant-turn review annotations with a local Ollama model."""
 from __future__ import annotations
-import argparse, hashlib, json, sys, time, urllib.error, urllib.request
+import argparse, hashlib, json, os, sys, time, urllib.error, urllib.request
 from pathlib import Path
 
 LABELS = {"positive_target", "negative_or_demonstration_only", "needs_revision"}
@@ -91,11 +91,21 @@ def ollama_chat(base_url,model,messages,timeout,num_ctx=None):
     if not isinstance(content,str) or not isinstance(actual,str): raise ReviewError("Ollama response missing message.content or model")
     return actual,content
 
-def load_existing(output,resume):
+def atomic_json(path, payload):
+    temp=path.with_suffix(path.suffix+".tmp")
+    temp.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+    os.replace(temp,path)
+
+def load_existing(output,resume,manifest_path,expected_manifest):
     if not output.exists():
         if resume: raise ReviewError("--resume requires an existing output file")
+        if manifest_path.exists(): raise ReviewError(f"orphan manifest exists; inspect before proceeding: {manifest_path}")
         return {}
     if not resume: raise ReviewError(f"output exists; refusing overwrite: {output}")
+    if not manifest_path.exists(): raise ReviewError("--resume requires the matching sidecar manifest")
+    saved=json.loads(manifest_path.read_text(encoding="utf-8"))
+    for key in ("format","annotation_version","prompt_version","requested_model","base_url","prompt_sha256","source_file_sha256"):
+        if saved.get(key)!=expected_manifest.get(key): raise ReviewError(f"resume manifest mismatch for {key}")
     found={}
     for line_no,raw in enumerate(output.read_text(encoding="utf-8").splitlines(),1):
         if not raw.strip(): continue
@@ -107,13 +117,22 @@ def load_existing(output,resume):
 
 def review_corpus(paths,output,model,base_url,timeout,num_ctx=None,resume=False,limit=None,pause=0.0):
     rows,active,replacements=read_jsonl(paths)
-    existing=load_existing(output,resume)
     active_ids={r["sample_id"] for r,_,_ in active}
-    if set(existing)-active_ids: raise ReviewError("resume file contains unknown or superseded IDs")
     hashes={str(p):sha(p.read_bytes()) for p in paths}
+    manifest_path=output.with_suffix(output.suffix+".manifest.json")
+    expected_manifest={"format":"ollama_assistant_turn_review_jsonl","annotation_version":ANNOTATION_VERSION,
+        "prompt_version":PROMPT_VERSION,"requested_model":model,"base_url":base_url.rstrip("/"),
+        "prompt_sha256":sha(SYSTEM_PROMPT.encode("utf-8")),"source_file_sha256":hashes,
+        "source_records_total":len(rows),"active_records_total":len(active),
+        "superseded_records_excluded":len(replacements),"human_certification":False,"training_approval":False}
+    existing=load_existing(output,resume,manifest_path,expected_manifest)
+    if set(existing)-active_ids: raise ReviewError("resume file contains unknown or superseded IDs")
     output.parent.mkdir(parents=True,exist_ok=True)
     counts={label:0 for label in LABELS}; completed=0
-    with output.open("a" if output.exists() else "x",encoding="utf-8") as stream:
+    if not output.exists():
+        with output.open("x",encoding="utf-8"): pass
+        atomic_json(manifest_path,{**expected_manifest,"completed_records":0,"complete":False})
+    with output.open("a",encoding="utf-8") as stream:
         for row,path,line_no in active:
             sid=row["sample_id"]
             if sid in existing:
@@ -122,8 +141,8 @@ def review_corpus(paths,output,model,base_url,timeout,num_ctx=None,resume=False,
                 if saved.get("source_record_sha256")!=expected_hash: raise ReviewError(f"{sid}: source record changed since annotation")
                 if saved.get("annotation_version")!=ANNOTATION_VERSION or saved.get("prompt_version")!=PROMPT_VERSION:
                     raise ReviewError(f"{sid}: resume annotation version mismatch")
-                if not isinstance(saved.get("review_model"),str) or not saved["review_model"]:
-                    raise ReviewError(f"{sid}: resume annotation is missing exact model provenance")
+                if saved.get("review_model")!=model:
+                    raise ReviewError(f"{sid}: annotation model differs from requested model")
                 expected_turns={i for i,m in enumerate(row["messages"]) if m["role"]=="assistant"}
                 validated=parse_model_response(json.dumps({"assistant_turns":saved.get("assistant_turns")},ensure_ascii=False),expected_turns,sid,len(row["messages"]))
                 for t in validated: counts[t["label"]]+=1
