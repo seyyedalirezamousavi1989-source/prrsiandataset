@@ -109,6 +109,7 @@ class OllamaTurnReviewTests(unittest.TestCase):
         request = urlopen.call_args.args[0]
         payload = json.loads(request.data.decode("utf-8"))
         self.assertEqual(payload["options"]["num_predict"], 2048)
+        self.assertIs(payload["think"], False)
 
     def test_manifest_tracks_partial_run_and_resume_completion(self):
         source = self.root / "source.jsonl"
