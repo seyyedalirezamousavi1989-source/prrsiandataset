@@ -7,7 +7,7 @@ on:
       - "scripts/validate_dataset.py"
       - "scripts/propose_semantic_families.py"
       - "scripts/build_semantic_review_register.py"
-      - "scripts/build_unmatched_record_inventory.py"
+      - "scripts/build_unmatched_record_inventory.py"\n      - "scripts/build_taxonomy_coverage_report.py"\n      - "docs/PERSIAN_DATASET_TAXONOMY_V2.md"
       - "schemas/conversation.schema.json"
       - "config/taxonomy_exceptions_v1.json"
       - "tests/**"
@@ -75,7 +75,7 @@ jobs:
           shopt -s globstar nullglob
           files=(data/staging/**/*.jsonl)
           python scripts/build_unmatched_record_inventory.py --candidates reports/semantic_family_candidates.json --csv-output reports/UNMATCHED_RECORD_HUMAN_REVIEW_V1.csv --summary-output reports/unmatched_record_summary.json "${files[@]}"
-      - name: Upload validation and semantic review reports
+      - name: Build descriptive taxonomy coverage report\n        shell: bash\n        run: |\n          set -euo pipefail\n          shopt -s globstar nullglob\n          files=(data/staging/**/*.jsonl)\n          python scripts/build_taxonomy_coverage_report.py --taxonomy docs/PERSIAN_DATASET_TAXONOMY_V2.md --json-output reports/PERSIAN_TAXONOMY_COVERAGE_V1.json --markdown-output reports/PERSIAN_TAXONOMY_COVERAGE_V1.md "${files[@]}"\n      - name: Upload validation and semantic review reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -85,5 +85,5 @@ jobs:
             reports/semantic_family_candidates.json
             reports/SEMANTIC_FAMILY_ADJUDICATION_REGISTER_V1.csv
             reports/UNMATCHED_RECORD_HUMAN_REVIEW_V1.csv
-            reports/unmatched_record_summary.json
+            reports/unmatched_record_summary.json\n            reports/PERSIAN_TAXONOMY_COVERAGE_V1.json\n            reports/PERSIAN_TAXONOMY_COVERAGE_V1.md
           if-no-files-found: ignore
