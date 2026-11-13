@@ -108,7 +108,7 @@ class OllamaTurnReviewTests(unittest.TestCase):
                 ]
             })
         source.write_text(
-            "".join(json.dumps(row, ensure_ascii=False) + "\\n" for row in records),
+            "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in records),
             encoding="utf-8"
         )
 
