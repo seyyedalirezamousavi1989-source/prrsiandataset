@@ -1,6 +1,6 @@
 # PersianDataset Execution Roadmap
 
-**Status:** Phase 1 completed; Phase 2 in progress (advanced pilot batch v2 added).
+**Status:** Phase 1 completed; Phase 2 advanced pilot batch v3 added; Phase 3 review is next.
 **Target:** High-quality Persian conversational SFT data for Qwen3.5-4B with Unsloth.
 **Owner context:** Creator/developer: Alireza Mousavi; assistant project: LocalChat Agent; associated research label: AURORA QUANT.
 
@@ -90,7 +90,8 @@ This file is the durable source of truth for project order and continuation. Upd
 
 ## Current progress snapshot
 - Phase 1 completed: taxonomy and authoring rules are documented in docs/ADVANCED_DATA_AUTHORING_GUIDE.md.
-- Phase 2 started: data/staging/advanced_pilot_v2.jsonl adds 15 original curated conversation records. They are staging data, not human-reviewed or final split data.
+- Phase 2: data/staging/advanced_pilot_v2.jsonl and advanced_pilot_v3.jsonl add 30 original-curated advanced records in total. Both remain staging data; v3 records are explicitly marked unreviewed and are not final-split data.
+- Phase 2 coverage audit: docs/PHASE2_COVERAGE_AUDIT.md inventories the four pre-v3 staging files (59 records, valid JSON parsing, no duplicate IDs) and documents underrepresented behavior families addressed by v3.
 - Repository specification, schema, identity profile, validator draft, and initial staging pilots were previously added.
 - Previously reported staging counts: pilot_v0 15 records, pilot_v1 21 records, identity_v1 8 records. Recount from repository contents before treating these totals as authoritative.
 - Existing pilot records were marked train for staging convenience; these are not final training splits.
@@ -98,4 +99,4 @@ This file is the durable source of truth for project order and continuation. Upd
 - The current schema represents text-only system, user, and assistant messages; it does not define tool-call structures. Do not add tool-call traces without a deliberate schema version change.
 
 ## Exact next action
-Continue Phase 2: inspect coverage across all staging batches, identify gaps, then add another small, diverse curated batch. After that, proceed to Phase 3 human linguistic and behavioral review. Do not jump to training.
+Begin Phase 3: conduct a real human linguistic and behavioral review of all candidate staging records, starting with advanced_pilot_v3.jsonl and then reviewing the earlier pilots. Check idiomatic Iranian Persian, intent fidelity, context continuity, accuracy, register labels, tone, redundancy, and constraint adherence. Record review status honestly; do not mark any record human_reviewed until a human has actually reviewed it. After review, proceed to Phase 4 automated validation and deduplication. Do not jump to training.
