@@ -97,7 +97,8 @@ def validate_record(row, path, line):
             except (TypeError, ValueError): errors.append(f"{where}: human review status requires quality.reviewed_at as YYYY-MM-DD")
     return errors, warnings
 
-def validate_files(paths, strict_taxonomy=False, training_ready=False):
+def validate_files(paths, strict_taxonomy=False, training_ready=False, taxonomy_exceptions=None):
+    taxonomy_exceptions = taxonomy_exceptions or {}
     errors, warnings, ids, payloads, supersedes = [], [], {}, {}, {}
     file_counts, coverage = Counter(), {k: Counter() for k in ("domain", "register", "language", "split", "turn_count", "provenance", "review_status")}
     total = 0
@@ -111,8 +112,13 @@ def validate_files(paths, strict_taxonomy=False, training_ready=False):
             except json.JSONDecodeError as exc: errors.append(f"{path}:{number}: invalid JSON: {exc.msg}"); continue
             e, w = validate_record(row, path, number); errors.extend(e); warnings.extend(w)
             if not isinstance(row, dict): continue
+            sid = row.get("sample_id")
             if strict_taxonomy and row.get("domain") not in CANONICAL_DOMAINS:
-                errors.append(f"{path}:{number}: non-canonical primary domain {row.get('domain')!r}")
+                exception = taxonomy_exceptions.get(sid) if isinstance(sid, str) else None
+                if isinstance(exception, dict) and exception.get("domain") == row.get("domain") and nonempty(exception.get("reason")):
+                    warnings.append(f"{path}:{number}: approved temporary taxonomy exception for {sid!r} ({row.get('domain')!r}): {exception['reason']}")
+                else:
+                    errors.append(f"{path}:{number}: non-canonical primary domain {row.get('domain')!r}")
             if training_ready:
                 q = row.get("quality") if isinstance(row.get("quality"), dict) else {}
                 if q.get("review_status") != "human_reviewed":
@@ -162,8 +168,17 @@ def main():
     parser.add_argument("--strict-warnings", action="store_true")
     parser.add_argument("--strict-taxonomy", action="store_true", help="Reject primary domains outside Taxonomy V2")
     parser.add_argument("--training-ready", action="store_true", help="Require human-reviewed records, all seven human scores, and no superseded predecessors")
+    parser.add_argument("--taxonomy-exceptions", type=Path, help="JSON allowlist for documented legacy taxonomy exceptions")
     args = parser.parse_args()
-    report = validate_files(args.files, strict_taxonomy=args.strict_taxonomy, training_ready=args.training_ready)
+    exceptions = {}
+    if args.taxonomy_exceptions:
+        try:
+            exceptions = json.loads(args.taxonomy_exceptions.read_text(encoding="utf-8"))
+            if not isinstance(exceptions, dict):
+                raise ValueError("taxonomy exceptions must be a JSON object")
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            parser.error(f"invalid --taxonomy-exceptions file: {exc}")
+    report = validate_files(args.files, strict_taxonomy=args.strict_taxonomy, training_ready=args.training_ready, taxonomy_exceptions=exceptions)
     print(f"TOTAL: {report['total_records']} records | {report['unique_sample_ids']} unique IDs | {len(report['errors'])} errors | {len(report['warnings'])} warnings")
     for name, count in report["files"].items(): print(f"{name}: {count} records")
     for key, values in report["coverage"].items(): print(f"{key}: {json.dumps(values, ensure_ascii=False, sort_keys=True)}")
