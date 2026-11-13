@@ -44,6 +44,17 @@ jobs:
             exit 1
           fi
           python scripts/validate_dataset.py "${files[@]}" --json-report reports/staging_validation.json
+      - name: Enforce Taxonomy V2 on current Persian excellence batches
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(data/staging/persian_language_excellence_v4.jsonl data/staging/persian_language_excellence_v5_part*.jsonl)
+          if (( ${#files[@]} == 0 )); then
+            echo "No current Persian excellence batches found"
+            exit 1
+          fi
+          python scripts/validate_dataset.py --strict-taxonomy "${files[@]}"
       - name: Upload validation report
         if: always()
         uses: actions/upload-artifact@v4
