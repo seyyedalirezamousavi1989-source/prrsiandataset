@@ -41,10 +41,8 @@ class ValidatorTests(unittest.TestCase):
             p = Path(tmp)/"a.jsonl"; p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
             self.assertTrue(any("not found" in e for e in validate_files([p])["errors"]))
 
-if __name__ == "__main__": unittest.main()
 
-
-    def test_human_review_requires_reviewer_and_date(self):
+def test_human_review_requires_reviewer_and_date(self):
         row = record(); row["quality"]["review_status"] = "human_reviewed"
         errors = validate_record(row, "x", 1)[0]
         self.assertTrue(any("requires quality.reviewer" in e for e in errors))
@@ -64,3 +62,6 @@ if __name__ == "__main__": unittest.main()
         row = record()
         row["quality"].update({"tone_appropriateness": 5, "non_redundancy": 4})
         self.assertEqual(validate_record(row, "x", 1)[0], [])
+
+
+if __name__ == "__main__": unittest.main()
