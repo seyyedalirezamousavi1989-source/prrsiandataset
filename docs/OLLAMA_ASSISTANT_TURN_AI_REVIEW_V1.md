@@ -43,6 +43,7 @@ Optional controls:
 - On `--resume`, the script validates the saved annotations against source hashes and recomputes progress from the append-only JSONL. This repairs stale progress counters produced by older versions; it does not invent or alter annotations.
 - The manifest's `complete` field becomes true only when every active source record has a validated annotation. It means only that processing finished, not that the judgments are correct.
 - Empty or malformed Ollama responses are retried up to three times. Final errors include the sample ID and available Ollama response metadata (such as `done_reason`, token counts, and message keys). The output-token limit can be raised with `--num-predict` when a conversation has many assistant turns.
+- The `/api/chat` request explicitly sets top-level `think: false`. The reviewer requires a final JSON annotation, not a separate reasoning trace; this also avoids a known Qwen3.5 failure mode where the thinking channel can consume generation while `message.content` stays empty.
 - Conversation contents are treated as untrusted data. Prompt-injection resistance is not guaranteed.
 - Confidence is self-reported by the model and is not calibrated.
 
