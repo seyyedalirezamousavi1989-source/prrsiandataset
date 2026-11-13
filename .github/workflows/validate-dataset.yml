@@ -6,6 +6,7 @@ on:
       - "data/staging/**/*.jsonl"
       - "scripts/validate_dataset.py"
       - "schemas/conversation.schema.json"
+      - "config/taxonomy_exceptions_v1.json"
       - "tests/**"
       - ".github/workflows/validate-dataset.yml"
   pull_request:
