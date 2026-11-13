@@ -1,34 +1,42 @@
 # Phase 4 — Validator Implementation Note
 
-## Changes committed
+## Implemented and runtime-verified
 
-- Reworked `scripts/validate_dataset.py` using Python standard library only.
-- Added record-level checks aligned with the repository conversation schema: required fields, enums, message shape, non-empty content, known roles, metadata, quality fields and score ranges.
-- Added conversation-order checks: optional system message only at the beginning, alternating user/assistant turns, and assistant final turn.
-- Added corpus-wide checks when all files are passed in one invocation: duplicate IDs, exact duplicate message payloads, and `supersedes_sample_id` references/cycles.
-- Added coverage summaries for domain, register, language, split, turn count, provenance and review status.
-- Added JSON report output and an optional strict-warning mode.
-- Added regression tests in `tests/test_validate_dataset.py`.
+- Standard-library validator: `scripts/validate_dataset.py`.
+- Record-level checks for required fields, enums, message shape/order, metadata, quality fields and score ranges.
+- Corpus-wide checks for duplicate IDs, exact duplicate message payloads, and `supersedes_sample_id` references/cycles.
+- Coverage summaries and JSON report output.
+- Regression tests in `tests/test_validate_dataset.py`.
+- GitHub Actions runs tests and validates all staging JSONL files.
 
-## Important compatibility behavior
+## Schema/validator alignment hardening — 2026-11-13
 
-- Older records without a `quality` object are warnings, not silently upgraded to reviewed.
-- Revision records remain separate staging records. Their superseded originals must be excluded from a future final training export; this validator only checks that the referenced original exists.
-- Exact duplicate detection is not semantic near-duplicate detection.
-- The schema file currently does not close the `metadata` object to additional properties; the validator preserves that flexibility while enforcing known metadata types.
+A consistency audit found two gaps: the canonical JSON Schema did not declare `metadata.supersedes_sample_id` used by revision records, and the documented seven-part review rubric was not fully represented in the quality schema. The validator also allowed a record to claim `human_reviewed` or `rejected` without reviewer/date evidence.
 
-## Verification status
+Safeguards added:
 
-The files were committed to GitHub, but the Python test suite and full-corpus validator have **not yet been executed** in this environment. Do not treat this implementation as runtime-verified. The next action is to run:
+- Declare `metadata.supersedes_sample_id` as string or null.
+- Add `tone_appropriateness` and `non_redundancy` scores (1–5).
+- Add optional `quality.reviewer` and `quality.reviewed_at`.
+- Require reviewer and ISO date evidence for `human_reviewed` and `rejected` statuses.
+- Trigger CI when the canonical schema changes.
+
+These fields remain optional for legacy and unreviewed records. No existing record was rewritten or upgraded.
+
+## Verification
+
+Previous CI run `43464530793` passed 8 regression tests and validated 112 staging records with 0 structural errors. The changes in this commit require a new Actions run; do not claim the new tests pass until that run completes.
+
+Run locally:
 
 ```bash
 python -m unittest discover -s tests -v
 python scripts/validate_dataset.py data/staging/*.jsonl --json-report reports/staging_validation.json
 ```
 
-Review the report before changing any review statuses or preparing final training data. A nonzero exit or any schema/sequence errors must be investigated rather than bypassed.
+## Limits
 
-
-## CI automation
-
-A GitHub Actions workflow is now committed at `.github/workflows/validate-dataset.yml`. It runs the unit tests and validates all staging JSONL files on relevant pushes and pull requests, and supports manual dispatch. The workflow file and validator/test files were fetched back from GitHub to confirm their committed contents. The actual Actions run result has not been inspected here; do not treat CI as passing until a run is confirmed in the repository Actions tab.
+- Structural validation does not certify Persian fluency, factual correctness, human review, or semantic uniqueness.
+- Exact duplicate detection is not semantic near-duplicate detection.
+- Revision records remain in staging; a future final manifest must select the active revision and keep related examples in one split.
+- Never add reviewer/date fields or mark a record reviewed unless a human actually completed the review.
