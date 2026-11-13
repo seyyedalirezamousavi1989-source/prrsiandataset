@@ -183,3 +183,28 @@ Scenarios include delayed reference resolution, correcting an unsupported wordin
 Structural validation passed before commit: 10 unique sequential IDs, exactly 10 non-empty alternating messages per record, canonical domains, valid register/language values, 2–4 subskills, and all review statuses set to `unreviewed`. The committed file was fetched back and matched the authored content exactly.
 
 V5 now contains 60 records across parts 1–6 (IDs `fa-exc-0161`–`fa-exc-0220`). This remains a candidate staging set, not a human-reviewed or training-approved release.
+
+
+## 10. V5 part 7 progress update (2026-11-13)
+
+V5 part 7 adds 10 candidate conversations, IDs `fa-exc-0221`–`fa-exc-0230`.
+
+| Primary domain | Records |
+|---|---:|
+| pragmatics_tone | 2 |
+| lexical_precision | 1 |
+| ambiguity_handling | 1 |
+| intent_understanding | 1 |
+| everyday_dialogue | 1 |
+| context_continuity | 1 |
+| colloquial_noisy_input | 1 |
+| sentence_construction | 1 |
+| explanation_reasoning | 1 |
+
+Conversation shape: nine 8-message conversations and one 10-message conversation. Register distribution: neutral 6, colloquial 3, formal 1. All ten are Persian-only (`fa`).
+
+Scenarios include contextual sarcasm detection, idiom interpretation and formal paraphrase, ambiguity in the word «سنگین», inference of an indirect request, humor in everyday conversation, topic shifts with selective context retention, noisy colloquial text, preserving factual qualifications in formal rewriting, distinguishing an invitation from politeness, and figurative meaning without overgeneralizing.
+
+Structural checks passed before commit: 10 unique sequential IDs, 8–10 non-empty alternating messages, canonical domains, valid register/language values, 2–4 subskills, and all review statuses `unreviewed`. The committed file was fetched back and matched the authored content exactly.
+
+V5 now contains 70 records across parts 1–7 (`fa-exc-0161`–`fa-exc-0230`). The batch remains synthetic staging data, not human-reviewed or training-approved.
