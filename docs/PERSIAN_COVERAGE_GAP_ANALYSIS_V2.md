@@ -157,3 +157,29 @@ Part 5 was intentionally targeted toward the gaps identified in this report:
 Part 5 structural checks passed locally before commit: 10 records, IDs `fa-exc-0201` through `fa-exc-0210`, alternating roles, 6–10 messages, valid canonical domains/register/language values, and all review statuses set to `unreviewed`. The committed file was fetched back and matched the authored content exactly.
 
 This update does not constitute human linguistic review, semantic deduplication, or approval for training. Re-run repository-wide coverage and semantic near-duplicate analysis after the full V5 candidate batch is complete.
+
+
+## 9. V5 part 6 progress update (2026-11-13)
+
+V5 part 6 adds 10 further synthetic records, IDs `fa-exc-0211` through `fa-exc-0220`. Every conversation contains 10 messages (five user/assistant exchanges), with meaningful progression rather than repeated prompt padding.
+
+| Primary domain | Records |
+|---|---:|
+| context_continuity | 1 |
+| correction_recovery | 1 |
+| ambiguity_handling | 1 |
+| adaptive_communication | 1 |
+| instruction_following | 1 |
+| pragmatics_tone | 1 |
+| truthfulness | 1 |
+| multi_turn_planning | 1 |
+| emotional_support | 1 |
+| colloquial_noisy_input | 1 |
+
+Register distribution: neutral 4, formal 3, mixed 2, colloquial 1. Language distribution: fa 8, fa-en 2.
+
+Scenarios include delayed reference resolution, correcting an unsupported wording change, contract-clause ambiguity, audience-specific release notes, exact three-bullet constraints, tactful refusal, cautious interpretation of a network error, dependency-aware office relocation, proportionate post-presentation support, and natural colloquial rewriting.
+
+Structural validation passed before commit: 10 unique sequential IDs, exactly 10 non-empty alternating messages per record, canonical domains, valid register/language values, 2–4 subskills, and all review statuses set to `unreviewed`. The committed file was fetched back and matched the authored content exactly.
+
+V5 now contains 60 records across parts 1–6 (IDs `fa-exc-0161`–`fa-exc-0220`). This remains a candidate staging set, not a human-reviewed or training-approved release.
