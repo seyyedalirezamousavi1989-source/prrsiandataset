@@ -281,3 +281,12 @@ The capstone scenarios integrate long-range planning with dependencies and conti
 Structural checks passed: 10 unique sequential IDs, 8–12 non-empty alternating messages, canonical domains, valid registers, 2–4 subskills, and all review statuses `unreviewed`. The committed JSONL was fetched back and matched the authored content exactly.
 
 **V5 initial 100-record build is complete** across parts 1–10 (`fa-exc-0161`–`fa-exc-0260`). This milestone means the planned staging batch is complete; it does not mean the dataset is human-reviewed, deduplicated, benchmarked, or approved for training.
+
+
+## 14. V5 post-build audit pointer (2026-11-13)
+
+The 100-record V5 staging batch has received a preliminary structural and lexical-overlap audit. Results: 100 fetched records, 100 unique IDs, zero exact duplicate conversation groups, zero role-sequence errors, and all 100 still `unreviewed`.
+
+The audit surfaced one legacy non-canonical primary domain (`fa-exc-0190`, domain `mixed`) and two lexical-overlap review pairs (`fa-exc-0189`/`fa-exc-0243`; `fa-exc-0252`/`fa-exc-0260`). These are review flags only; no records were automatically changed or deleted.
+
+See [PERSIAN_V5_INTERNAL_AUDIT_V1.md](PERSIAN_V5_INTERNAL_AUDIT_V1.md) for method, distributions, caveats, and required next steps. V5 is complete as a staging milestone, not approved for training.
