@@ -42,7 +42,7 @@ class ReviewerTests(unittest.TestCase):
         mock.return_value=self.response(); review_corpus([self.source],self.output,"reviewer-test:latest","http://localhost:11434",30)
         changed=dict(self.row); changed["messages"]=self.row["messages"]+[{"role":"user","content":"تغییر"}]
         self.source.write_text(json.dumps(changed,ensure_ascii=False)+"\n",encoding="utf-8")
-        with self.assertRaisesRegex(ReviewError,"source record changed"):
+        with self.assertRaisesRegex(ReviewError,"resume manifest mismatch for source_file_sha256"):
             review_corpus([self.source],self.output,"reviewer-test:latest","http://localhost:11434",30,resume=True)
     def test_existing_output_never_overwritten(self):
         self.output.write_text("keep\n",encoding="utf-8")
