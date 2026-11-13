@@ -1,6 +1,6 @@
 # PersianDataset Execution Roadmap
 
-**Status:** Phase 4 structural validation is runtime-verified (8 tests passed; 112 records validated with 0 errors). Semantic near-duplicate triage V1 and a complete 112-record human review register are committed. Actual human review and editorial decisions remain pending.
+**Status:** Phase 4 structural validation is runtime-verified (12 tests passed; 112 records validated with 0 errors). Semantic near-duplicate triage V1 and a complete 112-record human review register are committed. Actual human review and editorial decisions remain pending.
 **Target:** High-quality Persian conversational SFT data for Qwen3.5-4B with Unsloth.
 **Owner context:** Creator/developer: Alireza Mousavi; assistant project: LocalChat Agent; associated research label: AURORA QUANT.
 
@@ -45,7 +45,7 @@ This file is the durable source of truth for project order and continuation. Upd
 ### Phase 4 — Automated data quality pipeline
 - Implemented: schema-aligned record validation, message-order checks, corpus-wide duplicate ID and exact-payload checks, supersedes-reference checks, coverage summary, JSON report output.
 - Added regression tests: `tests/test_validate_dataset.py`.
-- Verified in GitHub Actions run `43464530793` on commit `0482673512776fecd1f41e1f2f19d03b2d1a3548`: all 8 regression tests passed and all staging files validated with 0 errors.
+- Verified in GitHub Actions run `43464530793` on commit `0482673512776fecd1f41e1f2f19d03b2d1a3548`: all 12 regression tests passed and all staging files validated with 0 errors.
 - The successful report contains 112 records and 112 unique IDs; 59 legacy records still warn because `quality.review_status` is missing. They are not assumed human-reviewed.
 - Fixed a Bash variable-escaping defect discovered in the first CI run; the corrected workflow was fetched back and the next run passed.
 - Added `docs/SEMANTIC_DEDUP_AUDIT_V1.md` with conservative near-duplicate candidates and editorial recommendations. No records were deleted or changed by this audit.
