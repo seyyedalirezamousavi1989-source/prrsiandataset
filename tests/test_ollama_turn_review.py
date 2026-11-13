@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from pathlib import Path
 
 from scripts.review_assistant_turns_ollama import (
-    ReviewError, parse_model_response, load_existing, atomic_json, review_corpus, ollama_chat,
+    ReviewError, parse_model_response, load_existing, atomic_json, review_corpus, ollama_chat, SYSTEM_PROMPT, PROMPT_VERSION,
 )
 
 
@@ -18,7 +18,7 @@ class OllamaTurnReviewTests(unittest.TestCase):
         self.expected = {
             "format": "ollama_assistant_turn_review_jsonl",
             "annotation_version": "assistant_turn_review_v1",
-            "prompt_version": "persian_turn_reviewer_v3",
+            "prompt_version": "persian_turn_reviewer_v4",
             "requested_model": "qwen3.5:9b",
             "base_url": "http://127.0.0.1:11434",
             "prompt_sha256": "abc",
@@ -37,6 +37,28 @@ class OllamaTurnReviewTests(unittest.TestCase):
             "evidence_message_indices": [max(0, idx - 1)],
             "issues": [],
         }
+
+
+    def test_v4_prompt_requires_contextual_reference_resolution_and_colloquial_acceptance(self):
+        self.assertEqual(PROMPT_VERSION, "persian_turn_reviewer_v4")
+        self.assertIn("FULL preceding conversation context", SYSTEM_PROMPT)
+        self.assertIn("Do not call a reference unclear if a reasonable Persian reader can resolve it", SYSTEM_PROMPT)
+        self.assertIn("Colloquial, idiomatic, elliptical, and informal Persian are acceptable", SYSTEM_PROMPT)
+
+    def test_v4_prompt_checks_semantic_preservation_and_urgency(self):
+        self.assertIn("Preserve urgency, time limits, intensity", SYSTEM_PROMPT)
+        self.assertIn("در اسرع وقت", SYSTEM_PROMPT)
+        self.assertIn("هر وقت فرصت کردی", SYSTEM_PROMPT)
+
+    def test_v4_prompt_requires_exact_quote_and_evidence_grounded_rationale(self):
+        self.assertIn("quote a short exact substring", SYSTEM_PROMPT)
+        self.assertIn("never invent or loosely reconstruct a quotation", SYSTEM_PROMPT)
+        self.assertIn("Evidence indices must point to messages", SYSTEM_PROMPT)
+
+    def test_v4_prompt_controls_false_positives_without_positive_bias(self):
+        self.assertIn("Do not over-penalize conversational style", SYSTEM_PROMPT)
+        self.assertIn("At the same time, do not default to positive", SYSTEM_PROMPT)
+        self.assertIn("confidence 1.0 casually", SYSTEM_PROMPT)
 
     def test_valid_complete_annotation_is_sorted_by_turn_index(self):
         payload = {"assistant_turns": [self.turn(3), self.turn(1, "negative_or_demonstration_only")]}
