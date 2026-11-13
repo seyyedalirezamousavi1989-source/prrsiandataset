@@ -69,7 +69,7 @@ Cross-cut these families with short and long turns, clean and noisy inputs, and 
 - Group validation/test/challenge conversations by source, template, and semantic family to prevent leakage.
 
 ## Current development batch
-`data/staging/persian_language_excellence_v1.jsonl` is the first 24-record expansion batch. It focuses on lexical nuance, collocations, idioms, natural rewriting, register shifts, pragmatics, noisy input, and multi-turn continuity. All records are synthetic-generated and unreviewed. This is candidate staging data, not training-ready data.
+`data/staging/persian_language_excellence_v1.jsonl` is the first 24-record expansion batch. `data/staging/persian_language_excellence_v2.jsonl` adds 31 more records (IDs fa-exc-0025 through fa-exc-0055), emphasizing lexical nuance, collocations, ambiguity, pragmatics, concise explanations, summary fidelity, descriptive prose, and style control. Both batches are synthetic candidate data and remain unreviewed. It focuses on lexical nuance, collocations, idioms, natural rewriting, register shifts, pragmatics, noisy input, and multi-turn continuity. All records are synthetic-generated and unreviewed. This is candidate staging data, not training-ready data.
 
 ## Acceptance gates
 1. JSON/schema/validator checks pass.
