@@ -94,13 +94,13 @@ class ValidatorTests(unittest.TestCase):
             row = record()
             row["domain"] = "mixed"
             p = Path(tmp) / "a.jsonl"
-            p.write_text(json.dumps(row, ensure_ascii=False) + "\\n", encoding="utf-8")
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
             self.assertTrue(any("non-canonical primary domain" in e for e in validate_files([p], strict_taxonomy=True)["errors"]))
 
     def test_training_ready_rejects_unreviewed_record(self):
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / "a.jsonl"
-            p.write_text(json.dumps(record(), ensure_ascii=False) + "\\n", encoding="utf-8")
+            p.write_text(json.dumps(record(), ensure_ascii=False) + "\n", encoding="utf-8")
             self.assertTrue(any("requires quality.review_status=human_reviewed" in e for e in validate_files([p], training_ready=True)["errors"]))
 
     def test_training_ready_requires_all_human_scores(self):
@@ -108,7 +108,7 @@ class ValidatorTests(unittest.TestCase):
             row = record()
             row["quality"].update({"review_status": "human_reviewed", "reviewer": "reviewer-1", "reviewed_at": "2026-11-13"})
             p = Path(tmp) / "a.jsonl"
-            p.write_text(json.dumps(row, ensure_ascii=False) + "\\n", encoding="utf-8")
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
             self.assertTrue(any("missing valid human scores" in e for e in validate_files([p], training_ready=True)["errors"]))
 
     def test_training_ready_rejects_superseded_predecessor(self):
@@ -120,7 +120,7 @@ class ValidatorTests(unittest.TestCase):
             for row in (old, new):
                 row["quality"].update({"review_status": "human_reviewed", "reviewer": "reviewer-1", "reviewed_at": "2026-11-13", **scores})
             p = Path(tmp) / "a.jsonl"
-            p.write_text("".join(json.dumps(row, ensure_ascii=False) + "\\n" for row in (old, new)), encoding="utf-8")
+            p.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in (old, new)), encoding="utf-8")
             self.assertTrue(any("superseded predecessor" in e for e in validate_files([p], training_ready=True)["errors"]))
 
     def test_extended_quality_scores(self):
