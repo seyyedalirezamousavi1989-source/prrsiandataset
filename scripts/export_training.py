@@ -21,7 +21,7 @@ class ExportError(ValueError):
 
 
 def prepare_export(paths):
-    report = validate_files(paths, strict_taxonomy=True, training_ready=True)
+    report = validate_files(paths, strict_taxonomy=True, training_ready=False)
     if report["errors"]:
         raise ExportError("Dataset validation failed:\n" + "\n".join(report["errors"]))
 
@@ -49,6 +49,13 @@ def prepare_export(paths):
 
     family_splits = {}
     for row, path, line in active:
+        quality = row.get("quality") if isinstance(row.get("quality"), dict) else {}
+        if quality.get("review_status") != "human_reviewed":
+            raise ExportError(f"{path}:{line}: record {row.get('sample_id')!r} is not human_reviewed")
+        for score in REQUIRED_SCORES:
+            value = quality.get(score)
+            if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= 5:
+                raise ExportError(f"{path}:{line}: record {row.get('sample_id')!r} lacks valid human score {score!r}")
         split = row.get("split")
         if split not in SPLITS:
             raise ExportError(f"{path}:{line}: invalid or missing split {split!r}")
