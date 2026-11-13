@@ -91,7 +91,7 @@ class TurnLevelExportTests(unittest.TestCase):
 
     def test_superseded_predecessor_annotation_is_not_allowed(self):
         old, new = make_record("fa-old", "old"), make_record("fa-new", "new")
-        new["metadata"]["supersedes_sample_id"] = "fa-old"
+        new["metadata"]["supersedes_sample_id"] = "fa-old"\n        new["messages"][0]["content"] = "درخواست نسخه تازه و متفاوتی دارم."
         self.write([old, new], [annotation("fa-old"), annotation("fa-new")])
         with self.assertRaisesRegex(ExportError, "unknown or superseded"):
             prepare_turn_export([self.source], self.ann)
