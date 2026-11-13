@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/persiandataset/conversation.schema.json",
+  "title": "PersianDataset Conversation Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sample_id", "messages", "domain", "split", "language", "metadata"],
+  "properties": {
+    "sample_id": {"type": "string", "minLength": 1},
+    "domain": {"type": "string", "minLength": 1},
+    "subskills": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "language": {"type": "string", "enum": ["fa", "fa-en", "multilingual"]},
+    "register": {"type": "string", "enum": ["colloquial", "neutral", "formal", "mixed"]},
+    "split": {"type": "string", "enum": ["train", "validation", "test", "challenge"]},
+    "messages": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "content"],
+        "properties": {
+          "role": {"type": "string", "enum": ["system", "user", "assistant"]},
+          "content": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intent_fidelity": {"type": "integer", "minimum": 1, "maximum": 5},
+        "context_use": {"type": "integer", "minimum": 1, "maximum": 5},
+        "persian_fluency": {"type": "integer", "minimum": 1, "maximum": 5},
+        "accuracy": {"type": "integer", "minimum": 1, "maximum": 5},
+        "instruction_adherence": {"type": "integer", "minimum": 1, "maximum": 5},
+        "review_status": {"type": "string", "enum": ["unreviewed", "machine_checked", "human_reviewed", "rejected"]}
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["provenance", "created_by"],
+      "properties": {
+        "provenance": {"type": "string"},
+        "source_reference": {"type": ["string", "null"]},
+        "license": {"type": ["string", "null"]},
+        "created_by": {"type": "string"},
+        "generator_model": {"type": ["string", "null"]},
+        "review_notes": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
