@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from scripts.validate_dataset import validate_record, validate_files
+from scripts.export_training import prepare_export, ExportError
 
 
 def record(sample_id="fa-test-1"):
@@ -144,6 +145,47 @@ class ValidatorTests(unittest.TestCase):
             p = Path(tmp) / "a.jsonl"
             p.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in (old, new)), encoding="utf-8")
             self.assertTrue(any("superseded predecessor" in e for e in validate_files([p], training_ready=True)["errors"]))
+
+
+    def reviewed_export_record(self, sample_id="fa-export-1", family="family-1", split="train"):
+        row = record(sample_id)
+        row["split"] = split
+        row["metadata"]["semantic_family_id"] = family
+        scores = {k: 4 for k in ("intent_fidelity", "context_use", "persian_fluency", "accuracy", "instruction_adherence", "tone_appropriateness", "non_redundancy")}
+        row["quality"].update({"review_status": "human_reviewed", "reviewer": "human-reviewer", "reviewed_at": "2026-11-13", **scores})
+        return row
+
+    def test_export_requires_human_review(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            row = record()
+            row["metadata"]["semantic_family_id"] = "family-1"
+            p = Path(tmp) / "data.jsonl"
+            p.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+            with self.assertRaises(ExportError):
+                prepare_export([p])
+
+    def test_export_blocks_semantic_family_split_leakage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            a = self.reviewed_export_record("fa-export-a", "same-family", "train")
+            b = self.reviewed_export_record("fa-export-b", "same-family", "test")
+            b["messages"][0]["content"] = "یک گفت‌وگوی متفاوت"
+            p = Path(tmp) / "data.jsonl"
+            p.write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in (a, b)), encoding="utf-8")
+            with self.assertRaisesRegex(ExportError, "semantic-family leakage"):
+                prepare_export([p])
+
+    def test_export_excludes_superseded_predecessor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = self.reviewed_export_record("fa-old", "family-old")
+            new = self.reviewed_export_record("fa-new", "family-new")
+            new["metadata"]["supersedes_sample_id"] = "fa-old"
+            new["messages"][0]["content"] = "نسخه اصلاح‌شده"
+            p = Path(tmp) / "data.jsonl"
+            p.write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in (old, new)), encoding="utf-8")
+            splits, manifest = prepare_export([p])
+            self.assertEqual(manifest["active_record_count"], 1)
+            self.assertEqual(manifest["excluded_superseded_count"], 1)
+            self.assertEqual([x["sample_id"] for x in splits["train"]], ["fa-new"])
 
     def test_extended_quality_scores(self):
         row = record()
