@@ -1,29 +1,39 @@
 # Dataset Blueprint
 
-## 1. Learning objectives
+## Mission and scope
 
-The dataset targets conversational Persian quality and robust intent understanding in Qwen3.5-4B. It must teach useful behavior rather than memorize fixed phrases.
+This repository builds a quality-first Persian conversational dataset for Qwen3.5-4B fine-tuning with Unsloth. The main goal is to improve natural Persian generation, intent understanding, context handling, reasoning, and helpful interaction.
 
-## 2. Initial data mixture
+Keep general Persian capability separate from specialist domain behavior. The wider AURORA QUANT workflow may use LocalChat Agent-provided market data for XAUUSD analysis; that should be a separately labeled and separately evaluated domain dataset or mixture. Never let market-specific examples dominate the general Persian fluency objective.
 
-The following proportions are starting targets. Rebalance them using held-out evaluation, not intuition alone.
+## Confirmed identity
+
+- Creator/developer: Alireza Mousavi.
+- Assistant/agent: LocalChat Agent.
+- Associated research project/team label: AURORA QUANT.
+- Base model: Qwen3.5-4B.
+- Training framework: Unsloth.
+
+Use the exact approved wording and boundaries in `IDENTITY_PROFILE_TEMPLATE.md`.
+
+## Initial general-Persian data mixture
 
 | Domain | Target share |
 |---|---:|
 | Fluent, idiomatic Persian generation and rewriting | 15% |
 | Natural everyday and professional conversations | 15% |
 | Explicit and implicit intent understanding | 15% |
-| Multi-turn context, reference resolution, and continuity | 12% |
-| Persian reasoning, explanation, comparison, and problem solving | 10% |
-| Colloquial Persian, idioms, humor, and noisy input | 8% |
+| Multi-turn context, reference resolution, continuity | 12% |
+| Persian reasoning, explanation, comparison, problem solving | 10% |
+| Colloquial Persian, idioms, humor, noisy input | 8% |
 | Ambiguity detection and clarification | 7% |
 | Instruction following and constraint preservation | 7% |
 | Emotional awareness and supportive communication | 6% |
-| Truthfulness, uncertainty, and self-correction | 5% |
+| Truthfulness, uncertainty, self-correction | 5% |
 
-Shares are targets for the curated training mixture, not a mandate to generate low-quality examples to fill quotas.
+Identity examples are a small, separately tagged capability slice and should not be allowed to distort ordinary assistant behavior. Domain-specific XAUUSD examples should be kept in their own labeled dataset or clearly controlled mixture.
 
-## 3. Required example families
+## Required example families
 
 - Single-turn requests with direct answers.
 - Multi-turn conversations with pronouns, ellipsis, references such as «همون قبلی», and evolving constraints.
@@ -36,9 +46,10 @@ Shares are targets for the curated training mixture, not a mandate to generate l
 - Complex instructions with multiple constraints and explicit output formats.
 - Knowledge questions where the assistant distinguishes known facts from uncertainty.
 - Emotional conversations with empathetic but non-performative responses.
-- Translation and bilingual exchanges only where they support Persian fluency, not as a substitute for Persian-first competence.
+- Identity questions that distinguish the assistant, creator, base model, and project.
+- Translation and bilingual exchanges only where they support Persian-first competence.
 
-## 4. Response quality rubric
+## Response quality rubric
 
 Score candidate responses on a 1-5 scale for:
 1. Intent fidelity.
@@ -52,7 +63,7 @@ Score candidate responses on a 1-5 scale for:
 
 Reject samples with fabricated details, unnatural literal translations, unnecessary verbosity, ignored constraints, unsafe advice, or context contradictions.
 
-## 5. Persian language policy
+## Persian language policy
 
 - Use contemporary, natural Iranian Persian as the default register.
 - Include both colloquial and formal Persian, labeled by intended style.
@@ -62,13 +73,13 @@ Reject samples with fabricated details, unnatural literal translations, unnecess
 - Retain English technical terms when they are standard in context; explain them when the audience needs it.
 - Include diverse regional and personal language variation without stereotyping speakers.
 
-## 6. Data format and splits
+## Data format and splits
 
-Each record is one complete conversation with a stable sample ID, task/domain labels, source/provenance metadata, quality scores, and a messages array. Keep all turns from one conversation in a single split.
+Each record is one complete conversation with a stable sample ID, task/domain labels, provenance metadata, quality scores, and a messages array. Keep all turns from one conversation in a single split.
 
-Recommended split: 90% train, 5% validation, 5% test, grouped by source/template/conversation family to reduce leakage. Maintain a separate frozen challenge set for regression testing.
+Recommended split: 90% train, 5% validation, 5% test, grouped by source/template/conversation family to reduce leakage. Maintain a separate frozen challenge set for regression testing. Do not assign every pilot record to train in the final corpus; create proper held-out examples before any benchmark claims.
 
-## 7. Curation and contamination controls
+## Curation and contamination controls
 
 - Deduplicate exact and near-duplicate records.
 - Detect template overuse and lexical diversity collapse.
@@ -78,36 +89,29 @@ Recommended split: 90% train, 5% validation, 5% test, grouped by source/template
 - Do not place generated bulk JSONL in Git history; use Git LFS or versioned artifact storage.
 - Keep evaluation prompts and gold answers out of training data.
 - Review synthetic examples for factual errors and repetitive patterns.
+- Mark synthetic/original examples accurately; do not imply human review unless it happened.
 
-## 8. Preference data (optional later stage)
+## Preference data (optional later stage)
 
 For each prompt/context, curate a clearly better chosen response and a plausible but inferior rejected response. Rejected examples should demonstrate specific failure modes (misread intent, unnatural Persian, missed context, overlong answer, hallucination, or needless clarification). Do not train preference labels until pair quality and evaluator agreement are measured.
 
-## 9. Evaluation
+## Evaluation
 
-Build a held-out Persian benchmark covering:
-- Native fluency and naturalness.
-- Intent understanding with indirect and noisy input.
-- Multi-turn reference resolution.
-- Clarification precision (ask when needed, answer when clear).
-- Instruction adherence.
-- Reasoning and explanation quality.
-- Truthfulness and uncertainty calibration.
-- Tone adaptation.
+Build a held-out Persian benchmark covering native fluency, intent understanding with indirect/noisy input, multi-turn reference resolution, clarification precision, instruction adherence, reasoning, truthfulness, uncertainty calibration, and tone adaptation. Include separate identity checks and, if used, a separate XAUUSD domain benchmark.
 
-Compare the base model and every fine-tuned checkpoint using the same prompts, decoding settings, and scoring rubric. Include blind human review by fluent Persian speakers. Track regressions as well as improvements.
+Compare the base model and every fine-tuned checkpoint using identical prompts, decoding settings, and scoring rubrics. Include blind human review by fluent Persian speakers. Track regressions as well as improvements.
 
-## 10. Training compatibility
+## Training compatibility
 
-Before training, verify the exact Qwen3.5-4B model identifier, tokenizer, chat template, Unsloth support, sequence length, EOS handling, and dataset packing settings. Do not assume generic ChatML serialization is interchangeable with the model's native template. Preserve message boundaries and assistant turn endings exactly as required by the tokenizer/template.
+Verify the exact Qwen3.5-4B model identifier, tokenizer, chat template, Unsloth support, sequence length, EOS handling, and dataset packing settings. Do not assume generic ChatML serialization is interchangeable with the model's native template. Preserve message boundaries and assistant turn endings exactly as required by the tokenizer/template.
 
-## 11. Initial milestones
+## Milestones
 
-1. Confirm owner/creator identity metadata.
-2. Finalize schema and dataset policy.
-3. Build a small manually reviewed pilot (500-1,000 examples).
+1. Creator identity confirmed and documented.
+2. Schema and curation policy finalized.
+3. Build a 500-1,000 example manually reviewed pilot.
 4. Run schema, deduplication, language-quality, and leakage checks.
 5. Establish baseline evaluation on the untouched base model.
-6. Expand the dataset only after pilot evaluation identifies measurable gaps.
+6. Expand only after pilot evaluation identifies measurable gaps.
 7. Run Unsloth SFT, evaluate, and iterate.
 8. Add preference optimization only if it provides measurable gains.
