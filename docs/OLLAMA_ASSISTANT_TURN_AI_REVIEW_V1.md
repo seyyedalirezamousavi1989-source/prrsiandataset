@@ -33,7 +33,16 @@ Optional controls:
 - `--pause`: seconds between records
 - `--limit`: number of new records in this invocation
 
-## Strict JSON-schema output (prompt V3)\n- Ollama receives a JSON Schema via its `format` field, not merely the generic `format: json` mode. The schema requires the six exact assistant-turn fields and rejects additional properties.\n- Parser errors now show expected, actual, missing, and extra field names, so a model-format regression is diagnosable without exposing the entire conversation.\n\n## Index compatibility fix (prompt V3)\n- Prompt version `persian_turn_reviewer_v3` explicitly demonstrates that assistant messages at original positions 1 and 3 must be returned as indices 1 and 3, not 0 and 1.\n- If a model still returns a complete assistant-only ordinal sequence (`0..N-1`), the parser maps it to the sorted original assistant message positions. Partial, duplicated, or otherwise ambiguous index sets are rejected.\n- The normalized JSONL stores only original conversation indices, so downstream turn-level export remains consistent.\n\n## Safety and provenance
+## Strict JSON-schema output (prompt V3)
+- Ollama receives a JSON Schema via its `format` field, not merely the generic `format: json` mode. The schema requires the six exact assistant-turn fields and rejects additional properties.
+- Parser errors now show expected, actual, missing, and extra field names, so a model-format regression is diagnosable without exposing the entire conversation.
+
+## Index compatibility fix (prompt V3)
+- Prompt version `persian_turn_reviewer_v3` explicitly demonstrates that assistant messages at original positions 1 and 3 must be returned as indices 1 and 3, not 0 and 1.
+- If a model still returns a complete assistant-only ordinal sequence (`0..N-1`), the parser maps it to the sorted original assistant message positions. Partial, duplicated, or otherwise ambiguous index sets are rejected.
+- The normalized JSONL stores only original conversation indices, so downstream turn-level export remains consistent.
+
+## Safety and provenance
 - AI results are always `ai_provisional`; they are not human certification.
 - The model cannot assign human scores, semantic families, dataset splits, or training approval.
 - Source record hashes are embedded in each annotation.
