@@ -10,7 +10,8 @@ on:
       - "scripts/build_unmatched_record_inventory.py"
       - "scripts/build_taxonomy_coverage_report.py"
       - "scripts/build_legacy_taxonomy_mapping.py"
-      - "scripts/build_sample_taxonomy_adjudication.py"\n      - "scripts/validate_taxonomy_adjudication.py"
+      - "scripts/build_sample_taxonomy_adjudication.py"
+      - "scripts/validate_taxonomy_adjudication.py"
       - "docs/PERSIAN_DATASET_TAXONOMY_V2.md"
       - "schemas/conversation.schema.json"
       - "config/taxonomy_exceptions_v1.json"
@@ -100,7 +101,10 @@ jobs:
           shopt -s globstar nullglob
           files=(data/staging/**/*.jsonl)
           python scripts/build_sample_taxonomy_adjudication.py --taxonomy docs/PERSIAN_DATASET_TAXONOMY_V2.md --csv-output reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv --summary-output reports/sample_level_taxonomy_adjudication_summary.json "${files[@]}"
-      - name: Validate generated sample-level adjudication packet\n        run: |\n          python scripts/validate_taxonomy_adjudication.py --taxonomy docs/PERSIAN_DATASET_TAXONOMY_V2.md --template reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv --reviewed reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv --json-report reports/taxonomy_adjudication_validation.json\n      - name: Upload validation and semantic review reports
+      - name: Validate generated sample-level adjudication packet
+        run: |
+          python scripts/validate_taxonomy_adjudication.py --taxonomy docs/PERSIAN_DATASET_TAXONOMY_V2.md --template reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv --reviewed reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv --json-report reports/taxonomy_adjudication_validation.json
+      - name: Upload validation and semantic review reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -115,5 +119,6 @@ jobs:
             reports/PERSIAN_TAXONOMY_COVERAGE_V1.md
             reports/LEGACY_TAXONOMY_MAPPING_PROPOSAL_V1.csv
             reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv
-            reports/sample_level_taxonomy_adjudication_summary.json\n            reports/taxonomy_adjudication_validation.json
+            reports/sample_level_taxonomy_adjudication_summary.json
+            reports/taxonomy_adjudication_validation.json
           if-no-files-found: ignore
