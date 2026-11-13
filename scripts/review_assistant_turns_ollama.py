@@ -86,7 +86,7 @@ def parse_model_response(content, expected, sid, message_count):
     return [found[i] for i in sorted(found)]
 
 def ollama_chat(base_url,model,messages,timeout,num_ctx=None,num_predict=2048):
-    payload={"model":model,"stream":False,"format":"json",
+    payload={"model":model,"stream":False,"think":False,"format":"json",
         "messages":[{"role":"system","content":SYSTEM_PROMPT},{"role":"user","content":json.dumps(messages,ensure_ascii=False)}],
         "options":{"temperature":0.0,"num_predict":num_predict}}
     if num_ctx: payload["options"]["num_ctx"]=num_ctx
