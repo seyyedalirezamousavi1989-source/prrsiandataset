@@ -105,5 +105,13 @@ This file is the durable source of truth for project order and continuation. Upd
 - Keep identity and specialist XAUUSD data separate from the general Persian dataset.
 - Existing `train` values are staging labels, not final leakage-resistant splits.
 
+## Persian Language Excellence expansion (new priority before preprocessing)
+- Added `docs/PERSIAN_LANGUAGE_EXCELLENCE_PLAN_V1.md` as the durable specification for a broader Persian capability corpus.
+- Added `data/staging/persian_language_excellence_v1.jsonl`: 24 synthetic candidate records covering lexical nuance, collocations, idioms, natural rewriting, register shifts, pragmatics, noisy input, and multi-turn continuity.
+- All new records are explicitly `unreviewed`; generated data is not represented as human-reviewed.
+- Keep raw-text continued-pretraining material separate from conversational SFT. Keep identity and Forex/XAUUSD datasets separate.
+- This expansion stage precedes safe preprocessing. It does not authorize final splits or model training.
+- Next: validate the new batch, inspect coverage and near-duplicates, then add further batches based on measured gaps. Human linguistic review remains mandatory.
+
 ## Exact next action
 Complete the six candidate-pair decisions in `docs/NEAR_DUPLICATE_ADJUDICATION_PACKET_V1.md` with a Persian-fluent human reviewer, then record outcomes in `docs/HUMAN_REVIEW_REGISTER_V1.md`. Continue the full general-Persian review afterward; review identity records separately. Do not change review metadata without actual human review evidence. Do not create final train/validation/test/challenge splits or start training until review and dedup decisions are recorded.
