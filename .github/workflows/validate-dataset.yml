@@ -127,5 +127,4 @@ jobs:
             reports/sample_level_taxonomy_adjudication_summary.json
             reports/taxonomy_adjudication_validation.json
             reports/taxonomy_review_batches_v1/**
-            reports/taxonomy_review_batches_v1/**
           if-no-files-found: ignore
