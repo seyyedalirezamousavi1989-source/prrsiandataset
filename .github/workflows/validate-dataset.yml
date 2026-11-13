@@ -9,7 +9,8 @@ on:
       - "scripts/build_semantic_review_register.py"
       - "scripts/build_unmatched_record_inventory.py"
       - "scripts/build_taxonomy_coverage_report.py"
-      - "scripts/build_legacy_taxonomy_mapping.py"\n      - "scripts/build_sample_taxonomy_adjudication.py"
+      - "scripts/build_legacy_taxonomy_mapping.py"
+      - "scripts/build_sample_taxonomy_adjudication.py"
       - "docs/PERSIAN_DATASET_TAXONOMY_V2.md"
       - "schemas/conversation.schema.json"
       - "config/taxonomy_exceptions_v1.json"
@@ -92,7 +93,14 @@ jobs:
           shopt -s globstar nullglob
           files=(data/staging/**/*.jsonl)
           python scripts/build_legacy_taxonomy_mapping.py --taxonomy docs/PERSIAN_DATASET_TAXONOMY_V2.md --output reports/LEGACY_TAXONOMY_MAPPING_PROPOSAL_V1.csv "${files[@]}"
-      - name: Build sample-level historical taxonomy adjudication packet\n        shell: bash\n        run: |\n          set -euo pipefail\n          shopt -s globstar nullglob\n          files=(data/staging/**/*.jsonl)\n          python scripts/build_sample_taxonomy_adjudication.py --taxonomy docs/PERSIAN_DATASET_TAXONOMY_V2.md --csv-output reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv --summary-output reports/sample_level_taxonomy_adjudication_summary.json "${files[@]}"\n      - name: Upload validation and semantic review reports
+      - name: Build sample-level historical taxonomy adjudication packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          files=(data/staging/**/*.jsonl)
+          python scripts/build_sample_taxonomy_adjudication.py --taxonomy docs/PERSIAN_DATASET_TAXONOMY_V2.md --csv-output reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv --summary-output reports/sample_level_taxonomy_adjudication_summary.json "${files[@]}"
+      - name: Upload validation and semantic review reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -105,5 +113,7 @@ jobs:
             reports/unmatched_record_summary.json
             reports/PERSIAN_TAXONOMY_COVERAGE_V1.json
             reports/PERSIAN_TAXONOMY_COVERAGE_V1.md
-            reports/LEGACY_TAXONOMY_MAPPING_PROPOSAL_V1.csv\n            reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv\n            reports/sample_level_taxonomy_adjudication_summary.json
+            reports/LEGACY_TAXONOMY_MAPPING_PROPOSAL_V1.csv
+            reports/SAMPLE_LEVEL_TAXONOMY_ADJUDICATION_V1.csv
+            reports/sample_level_taxonomy_adjudication_summary.json
           if-no-files-found: ignore
